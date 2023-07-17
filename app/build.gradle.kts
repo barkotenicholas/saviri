@@ -1,11 +1,15 @@
 plugins {
     id ("com.android.application")
     id ("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+    id("kotlin-kapt")
+    id("androidx.navigation.safeargs")
+
 }
 
 android {
     namespace  = "com.example.saviri"
-    compileSdk  = 33
+    compileSdk  = 34
 
     defaultConfig {
         applicationId = "com.example.saviri"
@@ -31,12 +35,20 @@ android {
         jvmTarget = "1.8"
     }
 
-    buildFeatures.dataBinding = true
+    buildFeatures.viewBinding = true
 }
 
 dependencies {
 
+    implementation("com.google.firebase:firebase-auth-ktx:21.0.3")
     val nav_version = "2.6.0"
+
+    val lifecycle_version = "2.6.1"
+
+    // Annotation processor
+    kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
 
 
     implementation ("androidx.core:core-ktx:1.7.0")

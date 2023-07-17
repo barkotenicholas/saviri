@@ -5,18 +5,29 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import com.example.saviri.R
+import com.example.saviri.databinding.FragmentRegisterGrafmentBinding
 
 
 class RegisterFragment : Fragment() {
 
 
+    private lateinit var binding: FragmentRegisterGrafmentBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_register_grafment, container, false)
+        binding = FragmentRegisterGrafmentBinding.inflate(inflater,container,false)
+
+        binding.login.apply {
+            setOnClickListener {
+                findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToLoginFragment())
+            }
+        }
+
+        return binding.root
     }
 
 }
