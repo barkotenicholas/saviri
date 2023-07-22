@@ -18,5 +18,15 @@
         android:id="@+id/loginFragment"
         android:name="com.example.saviri.ui.login.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" />
+
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment2"
+            app:destination="@id/homeFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment2"
+        android:name="com.example.saviri.ui.home.HomeFragment"
+        android:label="home"
+        tools:layout="@layout/home" />
 </navigation>

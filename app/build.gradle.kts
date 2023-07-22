@@ -41,6 +41,7 @@ android {
 dependencies {
 
     implementation("com.google.firebase:firebase-auth-ktx:21.0.3")
+    implementation("com.google.firebase:firebase-database:20.0.4")
     val nav_version = "2.6.0"
 
     val lifecycle_version = "2.6.1"
