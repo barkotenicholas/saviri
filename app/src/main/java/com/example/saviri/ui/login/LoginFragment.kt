@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
 
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                viewModel.loginFlow.value.let {
+                viewModel.loginFlow.collectLatest {
                     when(it){
                         is Resource.Failure -> {
                             Log.d("TAG", "onCreateView: ............................... ${it.exception.message}")
