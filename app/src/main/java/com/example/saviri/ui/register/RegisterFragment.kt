@@ -66,7 +66,7 @@ class RegisterFragment : Fragment() {
                 when(it){
 
                     is Resource.Failure -> {
-
+                        Log.d("TAG", "onCreateView: errrorrr ...................")
                     }
                     Resource.Loading -> {
 

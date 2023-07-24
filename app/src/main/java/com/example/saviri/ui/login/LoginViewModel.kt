@@ -1,5 +1,6 @@
 package com.example.saviri.ui.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
@@ -12,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
@@ -19,7 +21,7 @@ class LoginViewModel(
 ) : ViewModel() {
 
     private val _loginFlow = MutableStateFlow<Resource<FirebaseUser>?>(null)
-    val loginFlow: MutableStateFlow<Resource<FirebaseUser>?> = _loginFlow
+    val loginFlow = _loginFlow.asStateFlow()
 
 
 
@@ -33,8 +35,9 @@ class LoginViewModel(
 
         _loginFlow.value = Resource.Loading
         val result = repository.login(email,password)
+        Log.d("TAG", "login: ............................................... $result ")
         _loginFlow.value = result
-
+        Log.d("TAG", "login: ..................................${_loginFlow.value.toString()} ")
     }
 
     companion object {

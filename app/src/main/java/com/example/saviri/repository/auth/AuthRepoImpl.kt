@@ -40,7 +40,6 @@ class AuthRepoImpl(
             Log.d("TAG", "signup: .......................... ${result} ")
             result?.user?.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(name).build())?.await()
             Resource.Success(result.user!!)
-
         }catch (e:Exception){
             e.printStackTrace()
             Resource.Failure(e)

@@ -38,7 +38,10 @@ class RegisterViewModel(
     fun signUp() = viewModelScope.launch{
 
         _signUpFlow.value = Resource.Loading
+        Log.d(TAG, "signUp: ..................")
         val result =  repository.signup(_name.value,_email.value,_password.value)
+        Log.d(TAG, "signsasdasdUp: .................. $result")
+
         _signUpFlow.value = result
 
     }
@@ -64,7 +67,7 @@ class RegisterViewModel(
         val isNameCorrect = name.matches(regexString.toRegex())
         val isPasswordCorrect = password.length > 8
         val isRepeatPasswordCorrect = repeatPassword.length > 8
-        val isEmailCorrect = email.matches(regexEmail.toRegex())
+        val isEmailCorrect = true
         return@combine isNameCorrect and isPasswordCorrect and isRepeatPasswordCorrect and isEmailCorrect
     }
 
