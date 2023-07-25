@@ -34,6 +34,10 @@ class LoginFragment : Fragment() {
             button.setOnClickListener {
                 viewModel.login(binding.loginemail.text.toString().trim(),binding.loginpass.text.toString().trim())
             }
+            register.setOnClickListener {
+                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToRegisterFragment())
+            }
+
         }
 
         lifecycleScope.launch{
@@ -51,6 +55,8 @@ class LoginFragment : Fragment() {
                         is Resource.Success -> {
                             Log.d("TAG", ".............................................................................................................")
 
+                            val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment2()
+                            findNavController().navigate(action)
 
                         }
                         null -> {

@@ -8,13 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.saviri.R
 import com.example.saviri.data.Resource
 import com.example.saviri.databinding.FragmentRegisterGrafmentBinding
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -57,37 +60,37 @@ class RegisterFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            viewModel.isSubmitEnabled.collect{value->
-                Log.d("TAG", "onCreateView: ${value}")
-                binding.button2.isEnabled = true
-            }
-            viewModel.signUpFlow.value.let {
 
-                when(it){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                    is Resource.Failure -> {
-                        Log.d("TAG", "onCreateView: errrorrr ...................")
-                    }
-                    Resource.Loading -> {
+                viewModel.signUpFlow.collectLatest {
+                    when (it) {
 
-                    }
-                    is Resource.Success -> {
-                        findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToLoginFragment())
-                    }
-                    null -> {
+                        is Resource.Failure -> {
+                            Log.d("TAG", "onCreateView: errrorrr ...................")
+                        }
+                        Resource.Loading -> {
 
+                        }
+                        is Resource.Success -> {
+                            val action = RegisterFragmentDirections.actionRegisterFragmentToLoginFragment()
+                        }
+                        null -> {
+
+                        }
                     }
                 }
 
+                viewModel.isSubmitEnabled.collect { value ->
+                    Log.d("TAG", "onCreateView: ${value}")
+                    binding.button2.isEnabled = true
+                }
+
             }
+
         }
 
 
-        binding.login.apply {
-            setOnClickListener {
-                findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToLoginFragment())
-            }
-        }
 
         return binding.root
     }

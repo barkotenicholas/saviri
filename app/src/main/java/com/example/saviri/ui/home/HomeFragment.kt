@@ -22,7 +22,6 @@ class HomeFragment : Fragment() {
         binding = HomeBinding.inflate(inflater,container,false)
 
 
-
         return binding.root
 
     }

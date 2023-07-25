@@ -10,4 +10,5 @@
     <string name="enter_email">Enter Email</string>
     <string name="repeat_password">Repeat Password</string>
     <string name="home">Home</string>
+    <string name="not_a_member_click_here_to_register">Not a member click here to register</string>
 </resources>
