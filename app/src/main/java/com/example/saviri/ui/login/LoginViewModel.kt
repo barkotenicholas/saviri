@@ -46,15 +46,18 @@ class LoginViewModel(
         _loginFlow.value = Resource.Loading
         val result = repository.login(state.email,state.password)
         _loginFlow.value = result
-    }WW
+    }
 
     fun event(event: LoginFormEvent){
         when(event){
             is LoginFormEvent.EmailChanged -> {
-                state = state.copy(email = event.email)
+
+                Log.d("TAG", "text changed: -------------------")
+
+                _state.value = _state.value.copy(email = event.email)
             }
             is LoginFormEvent.PasswordChanged -> {
-                state = state.copy(password = event.pass)
+                _state.value = _state.value.copy(password = event.pass)
             }
             LoginFormEvent.Submit -> {
                 passValidation()
@@ -64,19 +67,36 @@ class LoginViewModel(
 
     private fun passValidation() {
 
-        val emailResult = validateEmail.execute(state.email)
-        val passwordResult = validateEmail.execute(state.password)
+        Log.d("TAG", "passValidation: ${state.email}")
+        Log.d("TAG", "passValidation: ${state.password}")
 
+        val emailResult = validateEmail.execute(state.email)
+        val passwordResult = validatePassword.execute(state.password)
+
+        Log.d("TAG", "passValidation: -------------------")
         val hasError = listOf(
             emailResult,
             passwordResult
         ).any { !it.success }
+        Log.d("TAG", "passValidation: ------------------- ${emailResult.errorMessage}")
+        Log.d("TAG", "passValidation: ------------------- ${state.emailError}")
+
         if (hasError){
-            state = state.copy(emailError = emailResult.errorMessage, passwordError =  passwordResult.errorMessage)
+            Log.d("TAG", "*****************: ----------------------------- ${_state.value}")
+            _state.value = _state.value.copy( emailError = emailResult.errorMessage, passwordError =  passwordResult.errorMessage)
+            Log.d("TAG", "passValidation: ------------------- ${state.emailError}")
+
             viewModelScope.launch {
                 emailResult.errorMessage?.let {
                     LoginState.Error(it)
+                }?.let {
+                    validationEventChannel.send(it)
                 }
+                passwordResult.errorMessage?.let {
+                    LoginState.Error(it)
+                }?.let {
+                    validationEventChannel.send(it)
+            }
             }
             return
         }
