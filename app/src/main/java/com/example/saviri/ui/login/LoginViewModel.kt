@@ -30,7 +30,7 @@ class LoginViewModel(
     val loginFlow = _loginFlow.asStateFlow()
 
     private val _state = MutableStateFlow(LoginFormState())
-    var state = _state.asStateFlow().value
+    var state = _state.asStateFlow()
 
     private val validationEventChannel = Channel<LoginState>()
     val validationEvents = validationEventChannel.receiveAsFlow()
@@ -44,7 +44,7 @@ class LoginViewModel(
     fun login () = viewModelScope.launch {
 
         _loginFlow.value = Resource.Loading
-        val result = repository.login(state.email,state.password)
+        val result = repository.login(state.value.email,state.value.password)
         _loginFlow.value = result
     }
 
@@ -67,33 +67,25 @@ class LoginViewModel(
 
     private fun passValidation() {
 
-        Log.d("TAG", "passValidation: ${state.email}")
-        Log.d("TAG", "passValidation: ${state.password}")
+        val emailResult = validateEmail.execute(_state.value.email)
+        val passwordResult = validatePassword.execute(_state.value.password)
 
-        val emailResult = validateEmail.execute(state.email)
-        val passwordResult = validatePassword.execute(state.password)
-
-        Log.d("TAG", "passValidation: -------------------")
         val hasError = listOf(
             emailResult,
             passwordResult
         ).any { !it.success }
-        Log.d("TAG", "passValidation: ------------------- ${emailResult.errorMessage}")
-        Log.d("TAG", "passValidation: ------------------- ${state.emailError}")
 
         if (hasError){
-            Log.d("TAG", "*****************: ----------------------------- ${_state.value}")
-            _state.value = _state.value.copy( emailError = emailResult.errorMessage, passwordError =  passwordResult.errorMessage)
-            Log.d("TAG", "passValidation: ------------------- ${state.emailError}")
+            _state.value = _state.value.copy(  emailError = emailResult.errorMessage, passwordError =  passwordResult.errorMessage)
 
             viewModelScope.launch {
                 emailResult.errorMessage?.let {
-                    LoginState.Error(it)
+                    LoginState.EmailError(it)
                 }?.let {
                     validationEventChannel.send(it)
                 }
                 passwordResult.errorMessage?.let {
-                    LoginState.Error(it)
+                    LoginState.PasswordError(it)
                 }?.let {
                     validationEventChannel.send(it)
             }
@@ -138,6 +130,8 @@ sealed class LoginFormEvent {
 
 sealed class LoginState{
     object Success : LoginState()
+    data class EmailError(val message: String):LoginState()
+    data class PasswordError(val message: String):LoginState()
     data class Error(val message : String) : LoginState()
     object Loading : LoginState()
     object Empty : LoginState()

@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         val navhost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val appBarConfiguration = AppBarConfiguration.Builder(
-            R.id.homeFragment2
+            R.id.loginFragment
         )
             .build()
         val navcontroller = navhost.navController
@@ -30,6 +30,11 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onSupportNavigateUp(): Boolean {
 
+        val navController  = findNavController(R.id.nav_host_fragment)
+        return navController.navigateUp() || super.onSupportNavigateUp()
+
+    }
 
 }
