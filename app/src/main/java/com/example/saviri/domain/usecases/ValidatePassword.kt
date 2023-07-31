@@ -12,10 +12,6 @@ class ValidatePassword {
             return ValidationResult(false,"Password Field needs to consists of 8 characters")
         }
 
-        val containsLetterAndDigits = password.any {it.isDigit()} && password.any { it.isLetter() }
-        if (!containsLetterAndDigits){
-            return ValidationResult(false,"Password Field must contains letters and digits")
-        }
         return ValidationResult(
             success = true
         )

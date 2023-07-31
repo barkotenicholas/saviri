@@ -1,6 +1,7 @@
 package com.example.saviri.ui.login
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.saviri.data.Resource
 import com.example.saviri.databinding.FragmentLoginBinding
+import com.example.saviri.util.ProgessDialog
 import com.example.saviri.util.ToastUtil
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -31,6 +33,8 @@ class LoginFragment : Fragment() {
 
         binding = FragmentLoginBinding.inflate(inflater,container,false)
         toastutil = ToastUtil()
+
+        val dialog = ProgessDialog.progressDialog(activity!!)
 
         binding.apply {
 
@@ -50,15 +54,12 @@ class LoginFragment : Fragment() {
 
         }
 
-        lifecycleScope.launch{
-
+        lifecycleScope.launch {
             viewModel.validationEvents.collect { event ->
 
                 when(event){
                     LoginState.Empty -> {
 
-                    }
-                    is LoginState.Error -> {
                     }
                     LoginState.Loading -> {
 
@@ -67,12 +68,13 @@ class LoginFragment : Fragment() {
 
                     }
                     is LoginState.EmailError -> {
-                        toastutil.showMessage("Hello",activity)
+
                         binding.textInputLayout.apply {
                             error = event.message
                         }
                     }
                     is LoginState.PasswordError -> {
+
                         binding.textInputLayout2.apply {
                             error = event.message
                         }
@@ -80,29 +82,36 @@ class LoginFragment : Fragment() {
                 }
 
             }
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                viewModel.loginFlow.collectLatest {
-                    when(it){
-                        is Resource.Failure -> {
-                        }
-                        Resource.Loading -> {
+        }
 
-                        }
-                        is Resource.Success -> {
+        lifecycleScope.launch{
 
-                            val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment2()
-                            findNavController().navigate(action)
 
-                        }
-                        null -> {
+            viewModel.loginFlow.collectLatest {
+                when(it){
+                    is Resource.Failure -> {
+                        Log.d("TAG", "onCreateView: --------------------------")
 
-                        }
                     }
+                    Resource.Loading -> {
+                        Log.d("TAG", "onCreateView: --------------------------")
 
+                    }
+                    is Resource.Success -> {
+                        Log.d("TAG", "onCreateView: --------------------------")
+
+                        val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment2()
+                        findNavController().navigate(action)
+
+                    }
+                    null -> {
+
+                    }
                 }
 
-                }
+            }
+
         }
 
 

@@ -46,14 +46,12 @@ class LoginViewModel(
         _loginFlow.value = Resource.Loading
         val result = repository.login(state.value.email,state.value.password)
         _loginFlow.value = result
+
     }
 
     fun event(event: LoginFormEvent){
         when(event){
             is LoginFormEvent.EmailChanged -> {
-
-                Log.d("TAG", "text changed: -------------------")
-
                 _state.value = _state.value.copy(email = event.email)
             }
             is LoginFormEvent.PasswordChanged -> {
@@ -92,6 +90,7 @@ class LoginViewModel(
             }
             return
         }
+
         login()
     }
 
@@ -99,10 +98,7 @@ class LoginViewModel(
         val Factory : ViewModelProvider.Factory = object : ViewModelProvider.Factory{
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                // Get the Application object from extras
-                val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-                // Create a SavedStateHandle for this ViewModel from extras
-                val savedStateHandle = extras.createSavedStateHandle()
+
                 val repository = AuthRepoImpl(FirebaseAuth.getInstance())
                 return LoginViewModel(
                     repository
@@ -132,7 +128,6 @@ sealed class LoginState{
     object Success : LoginState()
     data class EmailError(val message: String):LoginState()
     data class PasswordError(val message: String):LoginState()
-    data class Error(val message : String) : LoginState()
     object Loading : LoginState()
     object Empty : LoginState()
 }
