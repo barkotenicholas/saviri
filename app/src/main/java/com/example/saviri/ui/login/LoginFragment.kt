@@ -120,15 +120,10 @@ class LoginFragment : Fragment() {
                         toastutil.showMessage(it.result.email,activity)
                     }
                     null -> {
-
                     }
                 }
-
             }
-
         }
-
-
         return binding.root
     }
 

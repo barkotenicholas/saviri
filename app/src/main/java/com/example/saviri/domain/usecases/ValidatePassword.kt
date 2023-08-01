@@ -17,4 +17,9 @@ class ValidatePassword {
         )
     }
 
+    fun execute(password: String,repeatPassword: String){
+
+    }
+
+
 }

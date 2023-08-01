@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -23,6 +24,10 @@ class RegisterViewModel(
     private val TAG: String ="Fragment"
     private val _signUpFlow = MutableStateFlow<Resource<FirebaseUser>?>(null)
     val signUpFlow: MutableStateFlow<Resource<FirebaseUser>?> = _signUpFlow
+
+    private val _state = MutableStateFlow(RegisterFormState())
+    val state = _state.asStateFlow()
+
 
     private val _name = MutableStateFlow("")
     private val _password = MutableStateFlow("")
@@ -43,6 +48,32 @@ class RegisterViewModel(
         Log.d(TAG, "signsasdasdUp: .................. $result")
 
         _signUpFlow.value = result
+
+    }
+
+    fun event(event: RegisterFormEvent){
+        when(event){
+            is RegisterFormEvent.EmailChanged -> {
+                _state.value = _state.value.copy(email = event.email)
+            }
+            is RegisterFormEvent.NameChanged -> {
+                _state.value = _state.value.copy(name = event.name)
+            }
+            is RegisterFormEvent.PasswordChanged -> {
+                _state.value = _state.value.copy(password = event.password)
+            }
+            is RegisterFormEvent.RepeatPassword -> {
+                _state.value = _state.value.copy(passwordError = event.repeatPassword)
+            }
+            RegisterFormEvent.Submit -> {
+                validateInputs()
+            }
+        }
+    }
+
+    private fun validateInputs() {
+
+
 
     }
 
@@ -76,10 +107,8 @@ class RegisterViewModel(
         val Factory : ViewModelProvider.Factory = object :ViewModelProvider.Factory{
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                // Get the Application object from extras
-                val application = checkNotNull(extras[APPLICATION_KEY])
-                // Create a SavedStateHandle for this ViewModel from extras
-                val savedStateHandle = extras.createSavedStateHandle()
+
+
                 val repository = AuthRepoImpl(FirebaseAuth.getInstance())
                 return RegisterViewModel(
                     repository
@@ -87,4 +116,24 @@ class RegisterViewModel(
             }
         }
     }
+}
+
+data class RegisterFormState(
+    val name: String = "",
+    val nameError:String? = null,
+    val email: String = "",
+    val emailError:String? = null,
+    val password: String= "",
+    val passwordError:String?=null,
+    val repeatPassword: String= "",
+    val repeatPasswordError:String?=null,
+)
+
+sealed class RegisterFormEvent{
+    data class NameChanged(val name:String):RegisterFormEvent()
+    data class EmailChanged(val email: String):RegisterFormEvent()
+    data class  PasswordChanged(val password: String):RegisterFormEvent()
+    data class RepeatPassword(val repeatPassword: String):RegisterFormEvent()
+    object Submit:RegisterFormEvent()
+
 }
