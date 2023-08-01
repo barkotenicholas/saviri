@@ -60,6 +60,7 @@ class LoginViewModel(
             LoginFormEvent.Submit -> {
                 passValidation()
             }
+            else -> {}
         }
     }
 
@@ -67,6 +68,10 @@ class LoginViewModel(
 
         val emailResult = validateEmail.execute(_state.value.email)
         val passwordResult = validatePassword.execute(_state.value.password)
+
+        viewModelScope.launch {
+            validationEventChannel.send(LoginState.Clear)
+        }
 
         val hasError = listOf(
             emailResult,
@@ -128,6 +133,8 @@ sealed class LoginState{
     object Success : LoginState()
     data class EmailError(val message: String):LoginState()
     data class PasswordError(val message: String):LoginState()
+    object Clear:LoginState()
+
     object Loading : LoginState()
     object Empty : LoginState()
 }

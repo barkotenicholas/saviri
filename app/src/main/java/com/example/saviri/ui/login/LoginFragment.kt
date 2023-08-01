@@ -70,13 +70,25 @@ class LoginFragment : Fragment() {
                     is LoginState.EmailError -> {
 
                         binding.textInputLayout.apply {
+                            isErrorEnabled = true
                             error = event.message
                         }
                     }
                     is LoginState.PasswordError -> {
 
                         binding.textInputLayout2.apply {
+                            isErrorEnabled = true
                             error = event.message
+                        }
+                    }
+                    LoginState.Clear -> {
+                        binding.apply {
+                            textInputLayout.apply {
+                                isErrorEnabled = false
+                            }
+                            textInputLayout2.apply {
+                                isErrorEnabled = false
+                            }
                         }
                     }
                 }
@@ -91,19 +103,21 @@ class LoginFragment : Fragment() {
             viewModel.loginFlow.collectLatest {
                 when(it){
                     is Resource.Failure -> {
-                        Log.d("TAG", "onCreateView: --------------------------")
 
+                        dialog.dismiss()
+                        toastutil.showMessage(it.exception.message,activity)
                     }
                     Resource.Loading -> {
-                        Log.d("TAG", "onCreateView: --------------------------")
+
+                        dialog.show()
 
                     }
                     is Resource.Success -> {
-                        Log.d("TAG", "onCreateView: --------------------------")
 
+                        dialog.dismiss()
                         val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment2()
-                        findNavController().navigate(action)
-
+                        //findNavController().navigate(action)
+                        toastutil.showMessage(it.result.email,activity)
                     }
                     null -> {
 
