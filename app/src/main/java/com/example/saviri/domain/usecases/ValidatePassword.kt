@@ -17,8 +17,20 @@ class ValidatePassword {
         )
     }
 
-    fun execute(password: String,repeatPassword: String){
+    fun execute(password: String,repeatPassword: String):ValidationResult{
+        if(repeatPassword.isBlank()){
+            return ValidationResult(false,"Repeat Password Field Can't be Empty")
 
+        }
+        if(!password.equals(repeatPassword)){
+            return ValidationResult(false,"Password must be equal to repeat password")
+
+        }
+
+
+        return ValidationResult(
+            success = true
+        )
     }
 
 
