@@ -17,6 +17,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.saviri.R
 import com.example.saviri.data.Resource
 import com.example.saviri.databinding.FragmentRegisterGrafmentBinding
+import com.example.saviri.util.ProgessDialog
+import com.example.saviri.util.ToastUtil
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,6 +30,8 @@ class RegisterFragment : Fragment() {
     private lateinit var binding: FragmentRegisterGrafmentBinding
 
     private val viewModel : RegisterViewModel by viewModels{ RegisterViewModel.Factory}
+    private lateinit  var toastutil: ToastUtil
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,30 +39,66 @@ class RegisterFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentRegisterGrafmentBinding.inflate(inflater,container,false)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner){
-            findNavController().navigateUp()
-        }
+        toastutil = ToastUtil()
+        val dialog = ProgessDialog.progressDialog(activity!!)
+
 
         binding.apply {
-            button2.apply {
-                isEnabled = false
-            }
+
             name.addTextChangedListener {
-                viewModel.setName(it.toString())
+                viewModel.event(RegisterFormEvent.NameChanged(it.toString()))
             }
             email.addTextChangedListener {
-                viewModel.setEmail(it.toString())
+                viewModel.event(RegisterFormEvent.EmailChanged(it.toString()))
             }
             password.addTextChangedListener {
-                viewModel.setPassword(it.toString())
+                viewModel.event(RegisterFormEvent.PasswordChanged(it.toString()))
             }
             repeatPassword.addTextChangedListener {
-                viewModel.setRepeatPassword(it.toString())
+                viewModel.event(RegisterFormEvent.RepeatPassword(it.toString()))
             }
 
             button2.apply {
                 setOnClickListener {
-                    viewModel.signUp()
+                    viewModel.event(RegisterFormEvent.Submit)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.validationEvents.collect{event->
+                when(event){
+                    RegisterState.Clear -> {
+                        binding.apply {
+                            textInputLayout3.isErrorEnabled = false
+                            textInputLayout4.isErrorEnabled = false
+                            textInputLayout5.isErrorEnabled = false
+                            textInputLayout6.isErrorEnabled = false
+                        }
+                    }
+                    is RegisterState.EmailError -> {
+                        binding.textInputLayout3.apply {
+                            error = event.message
+                        }
+                    }
+                    is RegisterState.NameError -> {
+                        binding.textInputLayout6.apply {
+                            error = event.message
+                        }
+                    }
+                    is RegisterState.PasswordError -> {
+                        binding.textInputLayout4.apply {
+                            error = event.message
+                        }
+                    }
+                    is RegisterState.RepeatPasswordError -> {
+                        binding.textInputLayout5.apply {
+                            error = event.message
+                        }
+                    }
+                    RegisterState.Success -> {
+                        toastutil.showMessage("Success",activity)
+                    }
                 }
             }
         }
@@ -71,25 +111,25 @@ class RegisterFragment : Fragment() {
                     when (it) {
 
                         is Resource.Failure -> {
-                            Log.d("TAG", "onCreateView: errrorrr ...................")
-                        }
-                        Resource.Loading -> {
+                            dialog.dismiss()
+                            toastutil.showMessage("Error ${it.exception}",activity)
 
                         }
+                        Resource.Loading -> {
+                            dialog.show()
+                        }
                         is Resource.Success -> {
+                            dialog.dismiss()
+                            toastutil.showMessage("Success",activity)
+
                             val action = RegisterFragmentDirections.actionRegisterFragmentToLoginFragment()
+                            findNavController().navigate(action)
                         }
                         null -> {
 
                         }
                     }
                 }
-
-                viewModel.isSubmitEnabled.collect { value ->
-                    Log.d("TAG", "onCreateView: ${value}")
-                    binding.button2.isEnabled = true
-                }
-
             }
 
         }

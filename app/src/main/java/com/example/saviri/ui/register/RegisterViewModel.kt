@@ -37,11 +37,6 @@ class RegisterViewModel(
     val validationEvents = validationEventChannel.receiveAsFlow()
 
 
-    private val _name = MutableStateFlow("")
-    private val _password = MutableStateFlow("")
-    private val _repeatPassword = MutableStateFlow("")
-    private val _email = MutableStateFlow("")
-
     init {
         if(repository.currentUser != null){
             _signUpFlow.value = Resource.Success(repository.currentUser!!)
@@ -51,9 +46,8 @@ class RegisterViewModel(
     fun signUp() = viewModelScope.launch{
 
         _signUpFlow.value = Resource.Loading
-        Log.d(TAG, "signUp: ..................")
-        val result =  repository.signup(_name.value,_email.value,_password.value)
-        Log.d(TAG, "signsasdasdUp: .................. $result")
+
+        val result =  repository.signup(name =_state.value.name, email = _state.value.email, password = _state.value.password)
 
         _signUpFlow.value = result
 
@@ -71,7 +65,7 @@ class RegisterViewModel(
                 _state.value = _state.value.copy(password = event.password)
             }
             is RegisterFormEvent.RepeatPassword -> {
-                _state.value = _state.value.copy(passwordError = event.repeatPassword)
+                _state.value = _state.value.copy(repeatPassword = event.repeatPassword)
             }
             RegisterFormEvent.Submit -> {
                 validateInputs()
@@ -80,6 +74,10 @@ class RegisterViewModel(
     }
 
     private fun validateInputs() {
+
+        viewModelScope.launch {
+            validationEventChannel.send(RegisterState.Clear)
+        }
 
         val emailResult = validateEmail.execute(_state.value.email)
         val nameResult = validateName.execute(_state.value.name)
@@ -119,9 +117,7 @@ class RegisterViewModel(
                 }?.let {
                     validationEventChannel.send(it)
                 }
-
             }
-
             return
         }
 
@@ -129,34 +125,7 @@ class RegisterViewModel(
 
     }
 
-    private fun register() {
-        TODO("Not yet implemented")
-    }
-
-    fun setName(name: String){
-        Log.d(TAG, "setName:  name change ${name}")
-        _name.value = name
-    }
-    fun setPassword(password: String){
-        _password.value = password
-    }
-    fun setRepeatPassword(repeatPassword: String){
-        _repeatPassword.value = repeatPassword
-    }
-    fun setEmail(email: String){
-        _email.value = email
-    }
-
-
-    val isSubmitEnabled: Flow<Boolean> = combine(_name, _password, _repeatPassword,_email) { name , password, repeatPassword , email ->
-        val regexString = "[a-zA-Z]+"
-        val regexEmail = "[a-zA-Z]+"
-        val isNameCorrect = name.matches(regexString.toRegex())
-        val isPasswordCorrect = password.length > 8
-        val isRepeatPasswordCorrect = repeatPassword.length > 8
-        val isEmailCorrect = true
-        return@combine isNameCorrect and isPasswordCorrect and isRepeatPasswordCorrect and isEmailCorrect
-    }
+    private fun register() = signUp()
 
 
     companion object {
