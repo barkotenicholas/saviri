@@ -8,6 +8,8 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.saviri.data.Resource
+import com.example.saviri.domain.usecases.ValidateEmail
+import com.example.saviri.domain.usecases.ValidatePassword
 import com.example.saviri.repository.auth.AuthRepoImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -18,7 +20,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
-    private val repository: AuthRepoImpl
+    private val repository: AuthRepoImpl,
+    private val validatePassword: ValidatePassword,
+    private val validateEmail: ValidateEmail,
+
 ) : ViewModel() {
 
     private val TAG: String ="Fragment"
