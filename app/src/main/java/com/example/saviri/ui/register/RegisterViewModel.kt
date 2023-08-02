@@ -9,21 +9,21 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.example.saviri.data.Resource
 import com.example.saviri.domain.usecases.ValidateEmail
+import com.example.saviri.domain.usecases.ValidateName
 import com.example.saviri.domain.usecases.ValidatePassword
 import com.example.saviri.repository.auth.AuthRepoImpl
+import com.example.saviri.ui.login.LoginState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
     private val repository: AuthRepoImpl,
-    private val validatePassword: ValidatePassword,
-    private val validateEmail: ValidateEmail,
-
+    private val validatePassword: ValidatePassword = ValidatePassword(),
+    private val validateEmail: ValidateEmail = ValidateEmail(),
+    private val validateName: ValidateName = ValidateName()
 ) : ViewModel() {
 
     private val TAG: String ="Fragment"
@@ -32,6 +32,9 @@ class RegisterViewModel(
 
     private val _state = MutableStateFlow(RegisterFormState())
     val state = _state.asStateFlow()
+
+    private val validationEventChannel = Channel<RegisterState>()
+    val validationEvents = validationEventChannel.receiveAsFlow()
 
 
     private val _name = MutableStateFlow("")
@@ -78,8 +81,56 @@ class RegisterViewModel(
 
     private fun validateInputs() {
 
+        val emailResult = validateEmail.execute(_state.value.email)
+        val nameResult = validateName.execute(_state.value.name)
+        val passwordResult = validatePassword.execute(_state.value.password)
+        val repeatPasswordResult = validatePassword.execute(_state.value.password,_state.value.repeatPassword)
 
+        val hasError = listOf(
+            emailResult,
+            nameResult,
+            passwordResult,
+            repeatPasswordResult
+        ).any {
+            !it.success
+        }
 
+        if(hasError){
+            _state.value = _state.value.copy(repeatPasswordError = repeatPasswordResult.errorMessage,emailError = emailResult.errorMessage, passwordError = passwordResult.errorMessage, nameError = nameResult.errorMessage)
+
+            viewModelScope.launch {
+                emailResult.errorMessage?.let {
+                    RegisterState.EmailError(it)
+                }?.let {
+                    validationEventChannel.send(it)
+                }
+                nameResult.errorMessage?.let {
+                    RegisterState.NameError(it)
+                }?.let {
+                    validationEventChannel.send(it)
+                }
+                passwordResult.errorMessage?.let {
+                    RegisterState.PasswordError(it)
+                }?.let {
+                    validationEventChannel.send(it)
+                }
+                repeatPasswordResult.errorMessage?.let {
+                    RegisterState.RepeatPasswordError(it)
+                }?.let {
+                    validationEventChannel.send(it)
+                }
+
+            }
+
+            return
+        }
+
+        register()
+
+    }
+
+    private fun register() {
+        TODO("Not yet implemented")
     }
 
     fun setName(name: String){
@@ -133,6 +184,15 @@ data class RegisterFormState(
     val repeatPassword: String= "",
     val repeatPasswordError:String?=null,
 )
+
+sealed class RegisterState{
+    data class EmailError(val message: String): RegisterState()
+    data class PasswordError(val message: String): RegisterState()
+    data class RepeatPasswordError(val message: String):RegisterState()
+    data class NameError(val message: String):RegisterState()
+    object Success:RegisterState()
+    object Clear:RegisterState()
+}
 
 sealed class RegisterFormEvent{
     data class NameChanged(val name:String):RegisterFormEvent()
