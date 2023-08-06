@@ -116,7 +116,7 @@ class LoginFragment : Fragment() {
 
                         dialog.dismiss()
                         val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment2()
-                        //findNavController().navigate(action)
+                        findNavController().navigate(action)
                         toastutil.showMessage(it.result.email,activity)
                     }
                     null -> {

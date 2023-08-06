@@ -20,7 +20,8 @@ class MainActivity : AppCompatActivity() {
 
         val navhost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val appBarConfiguration = AppBarConfiguration.Builder(
-            R.id.loginFragment
+            R.id.loginFragment,
+            R.id.homeFragment2
         )
             .build()
         val navcontroller = navhost.navController
