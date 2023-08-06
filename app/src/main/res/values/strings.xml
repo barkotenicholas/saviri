@@ -11,4 +11,5 @@
     <string name="repeat_password">Repeat Password</string>
     <string name="home">Home</string>
     <string name="not_a_member_click_here_to_register">Not a member click here to register</string>
+    <string name="add_shopping_list">add shopping list</string>
 </resources>
