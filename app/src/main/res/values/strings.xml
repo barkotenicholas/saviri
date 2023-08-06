@@ -12,4 +12,7 @@
     <string name="home">Home</string>
     <string name="not_a_member_click_here_to_register">Not a member click here to register</string>
     <string name="add_shopping_list">add shopping list</string>
+    <string name="add_to_cart">Add To Cart</string>
+    <string name="item_price">Item Price</string>
+    <string name="item_name">Item Name</string>
 </resources>

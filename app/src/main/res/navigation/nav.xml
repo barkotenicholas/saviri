@@ -35,5 +35,15 @@
         android:id="@+id/homeFragment2"
         android:name="com.example.saviri.ui.home.HomeFragment"
         android:label="home"
-        tools:layout="@layout/home" />
+        tools:layout="@layout/home" >
+        <action
+            android:id="@+id/action_homeFragment2_to_addCartFragment2"
+            app:destination="@id/addCartFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/addCartFragment2"
+        android:name="com.example.saviri.ui.AddCart.AddCartFragment"
+        android:label="AddCartFragment"
+        tools:layout="@layout/cart_fragment"
+        />
 </navigation>
