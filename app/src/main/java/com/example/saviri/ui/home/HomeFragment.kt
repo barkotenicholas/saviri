@@ -6,15 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.saviri.data.ShoppingItem
 import com.example.saviri.databinding.HomeBinding
+import com.example.saviri.ui.login.LoginViewModel
 
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding :HomeBinding
+    private val viewModel : HomeViewModel by viewModels { HomeViewModel.Factory  }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,6 +38,9 @@ class HomeFragment : Fragment() {
                     findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2())
                 }
             }
+
+
+
         }
 
 

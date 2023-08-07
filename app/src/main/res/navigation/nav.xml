@@ -43,7 +43,7 @@
     <fragment
         android:id="@+id/addCartFragment2"
         android:name="com.example.saviri.ui.AddCart.AddCartFragment"
-        android:label="AddCartFragment"
+        android:label="Add Cart"
         tools:layout="@layout/cart_fragment"
         />
 </navigation>
