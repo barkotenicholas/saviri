@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.saviri.data.ShoppingItem
 import com.example.saviri.domain.usecases.ValidateCart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,6 +73,8 @@ class HomeViewModel(
             return
         }
 
+
+
     }
 
 
@@ -101,7 +104,7 @@ sealed class CartFormEvent{
 }
 
 sealed class CartState{
-    object Success:CartState()
+    data class Success(val item : ShoppingItem):CartState()
 
     data class ItemNameError(val message : String):CartState()
     data class ItemPriceError(val message : String):CartState()

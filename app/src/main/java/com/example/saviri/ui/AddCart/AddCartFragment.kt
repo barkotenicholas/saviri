@@ -62,9 +62,6 @@ class AddCartFragment : Fragment() {
                         }
 
                     }
-                    CartState.Success -> {
-
-                    }
                     is CartState.ItemNameError -> {
                         Log.d("TAG", "Home: ------")
 
@@ -80,6 +77,9 @@ class AddCartFragment : Fragment() {
 
                             error = event.message
                         }
+                    }
+                    is CartState.Success -> {
+
                     }
                 }
             }
