@@ -21,7 +21,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding :HomeBinding
     private val viewModel : HomeViewModel by viewModels { HomeViewModel.Factory  }
-
     private val args:HomeFragmentArgs by navArgs()
     private  var shoppingItem: ShoppingItem? = null
     override fun onCreateView(
