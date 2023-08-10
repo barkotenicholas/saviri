@@ -81,11 +81,11 @@ class AddCartFragment : Fragment() {
                     }
                     is CartState.Success -> {
                         viewModel.event(CartFormEvent.Submit)
-
-                        val passData = event.item
-                        val action = AddCartFragmentDirections.actionAddCartFragment2ToHomeFragment2()
-                        action.info = passData
-                        findNavController().navigate(action)
+//
+//                        val passData = event.item
+//                        val action = AddCartFragmentDirections.ActionAddCartFragment2ToHomeFragment2()
+//                        action.info = passData
+//                        findNavController().navigate(action)
                     }
                 }
             }
