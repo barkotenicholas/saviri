@@ -73,7 +73,14 @@ class HomeViewModel(
             return
         }
 
-
+        viewModelScope.launch {
+            cartValidationEventChannel.send(CartState.Success(
+                ShoppingItem(_state.value.itemName,
+                    _state.value.itemPrice.toDouble(),
+                    1
+                )
+            ))
+        }
 
     }
 

@@ -9,6 +9,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.saviri.databinding.CartFragmentBinding
 import com.example.saviri.ui.home.CartFormEvent
 import com.example.saviri.ui.home.CartState
@@ -79,7 +80,12 @@ class AddCartFragment : Fragment() {
                         }
                     }
                     is CartState.Success -> {
+                        viewModel.event(CartFormEvent.Submit)
 
+                        val passData = event.item
+                        val action = AddCartFragmentDirections.actionAddCartFragment2ToHomeFragment2()
+                        action.info = passData
+                        findNavController().navigate(action)
                     }
                 }
             }
