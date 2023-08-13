@@ -51,6 +51,12 @@ class ShoppingAdapter (
                     }
                 }
 
+                itemDelete.apply {
+                    setOnClickListener {
+                         items.removeAt(position)
+                         notifyItemRemoved(position)
+                    }
+                }
             }
         }
     }
