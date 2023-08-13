@@ -35,9 +35,19 @@ class ShoppingAdapter (
 
                 addQuantity.apply {
                     setOnClickListener {
-                        Log.d("TAG", "bind: -------- ")
+
                         items[position] = item.copy(quantity = item.quantity+1)
                         notifyItemChanged(position)
+
+                    }
+                }
+
+                minusQuantity.apply {
+                    setOnClickListener {
+
+                        items[position] = item.copy(quantity = if(item.quantity == 0) 0 else item.quantity-1)
+                        notifyItemChanged(position)
+
                     }
                 }
 
