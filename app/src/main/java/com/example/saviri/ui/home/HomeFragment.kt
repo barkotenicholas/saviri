@@ -30,11 +30,15 @@ class HomeFragment : Fragment() {
     ): View {
 
         binding = HomeBinding.inflate(inflater,container,false)
-        val shoppingAdapter = ShoppingAdapter(getList())
+        var items = getList()
+        val shoppingAdapter = ShoppingAdapter(items)
 
         shoppingItem = args.info
+        if(shoppingItem != null){
+            items.add(shoppingItem!!)
+            shoppingAdapter.notifyDataSetChanged()
+        }
 
-        Log.d("TAG", "onCreateView:------------------------------$shoppingItem")
 
         binding.apply {
             recyclerView.apply {
@@ -58,8 +62,8 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun getList():List<ShoppingItem>{
-        return listOf(
+    fun getList():MutableList<ShoppingItem>{
+        return mutableListOf(
             ShoppingItem("beer",20.0,8),
             ShoppingItem("beer",20.0,8),
             ShoppingItem("beer",20.0,8),

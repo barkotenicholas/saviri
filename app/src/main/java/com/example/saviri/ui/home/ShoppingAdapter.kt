@@ -1,5 +1,6 @@
 package com.example.saviri.ui.home
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -7,7 +8,7 @@ import com.example.saviri.data.ShoppingItem
 import com.example.saviri.databinding.ShopingItemBinding
 
 class ShoppingAdapter (
-    var items:List<ShoppingItem>,
+    private var items:MutableList<ShoppingItem>,
     ) : RecyclerView.Adapter<ShoppingAdapter.ShoppingViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -19,17 +20,27 @@ class ShoppingAdapter (
     }
 
     override fun onBindViewHolder(holder: ShoppingAdapter.ShoppingViewHolder, position: Int) {
+
         val item = items[position]
-        holder.bind(item)
+        holder.bind(item,position)
     }
 
     override fun getItemCount() = items.size
 
-    class ShoppingViewHolder(private val binding: ShopingItemBinding):RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: ShoppingItem){
+    inner class ShoppingViewHolder(private val binding: ShopingItemBinding):RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: ShoppingItem,position: Int){
             binding.apply {
                 itemName.text = item.name
                 itemAmount.text = item.quantity.toString()
+
+                addQuantity.apply {
+                    setOnClickListener {
+                        Log.d("TAG", "bind: -------- ")
+                        items[position] = item.copy(quantity = item.quantity+1)
+                        notifyItemChanged(position)
+                    }
+                }
+
             }
         }
     }
