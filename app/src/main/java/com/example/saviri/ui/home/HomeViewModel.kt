@@ -23,6 +23,8 @@ class HomeViewModel(
     private val cartValidationEventChannel = Channel<CartState>()
     val cartValidationChannel = cartValidationEventChannel.receiveAsFlow()
 
+    private val _currencyState = MutableStateFlow(CurrencyFormState())
+    val currencyState = _currencyState.asStateFlow()
 
     fun event(event: CartFormEvent){
         when(event){
@@ -34,6 +36,14 @@ class HomeViewModel(
             }
             CartFormEvent.Submit -> {
                 validateInputs()
+            }
+        }
+    }
+
+    fun currencyEvent(event: CurrencyFormEvent){
+        when (event){
+            is CurrencyFormEvent.CurrencyChanged -> {
+                _currencyState.value = _currencyState.value.copy(currencyRate = event.currency)
             }
         }
     }
@@ -102,6 +112,22 @@ data class CartFormState(
     val itemPrice : String="",
     val itemPriceError:String?=null
 )
+
+data class CurrencyFormState(
+    val currencyRate : String = "",
+    val currencyRateError : String ?= null
+)
+
+sealed class CurrencyFormEvent{
+    data class CurrencyChanged(val currency : String) : CurrencyFormEvent()
+}
+
+sealed class CurrencyState{
+
+    data class CurrencyError(val message: String):CurrencyState()
+    object Clear: CurrencyState()
+
+}
 
 sealed class CartFormEvent{
     data class ItemNameChanged(val itemName: String):CartFormEvent()

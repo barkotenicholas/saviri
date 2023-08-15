@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -18,6 +19,8 @@ import com.example.saviri.data.ShoppingItem
 import com.example.saviri.databinding.HomeBinding
 import com.example.saviri.ui.AddCart.AddCartFragment
 import com.example.saviri.ui.login.LoginViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
@@ -33,8 +36,6 @@ class HomeFragment : Fragment() {
     ): View {
 
         binding = HomeBinding.inflate(inflater,container,false)
-
-
 
         return binding.root
 
@@ -55,7 +56,7 @@ class HomeFragment : Fragment() {
 
 
         binding.apply {
-            recyclerView.apply {
+            homeId.recyclerView.apply {
                 adapter = shoppingAdapter
                 layoutManager = LinearLayoutManager(requireContext())
                 setHasFixedSize(true)
@@ -91,8 +92,13 @@ class HomeFragment : Fragment() {
             ItemTouchHelper(simpleItemTouchCallback)
         }
 
-        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.homeId.recyclerView)
 
+        lifecycleScope.launch {
+            viewModel.currencyState.collectLatest {
+                binding.homeId.exchangeRate.text = it.currencyRate
+            }
+        }
 
     }
 
