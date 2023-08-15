@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -56,7 +57,7 @@ class HomeFragment : Fragment() {
 
 
         binding.apply {
-            homeId.recyclerView.apply {
+            recyclerView.apply {
                 adapter = shoppingAdapter
                 layoutManager = LinearLayoutManager(requireContext())
                 setHasFixedSize(true)
@@ -64,6 +65,12 @@ class HomeFragment : Fragment() {
             floatingActionButton.apply {
                 setOnClickListener {
                     findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2())
+                }
+            }
+
+            currencyRate.apply {
+                addTextChangedListener {
+                    viewModel.currencyEvent(CurrencyFormEvent.CurrencyChanged(it.toString()))
                 }
             }
 
@@ -92,11 +99,11 @@ class HomeFragment : Fragment() {
             ItemTouchHelper(simpleItemTouchCallback)
         }
 
-        itemTouchHelper.attachToRecyclerView(binding.homeId.recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         lifecycleScope.launch {
             viewModel.currencyState.collectLatest {
-                binding.homeId.exchangeRate.text = it.currencyRate
+                binding.exchangeRate.text = it.currencyRate
             }
         }
 
