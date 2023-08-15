@@ -26,6 +26,15 @@ class ShoppingAdapter (
     }
 
     override fun getItemCount() = items.size
+
+    fun getTotal() : Double {
+        var total :Double = 0.0
+        for (item in items){
+            total += item.price
+        }
+
+        return total
+    }
     fun remove(position: Int) {
 
         items.removeAt(position)
@@ -50,7 +59,7 @@ class ShoppingAdapter (
                 minusQuantity.apply {
                     setOnClickListener {
 
-                        items[position] = item.copy(quantity = if(item.quantity == 0) 0 else item.quantity-1)
+                        items[position] = item.copy(quantity = if(item.quantity == 1) 1 else item.quantity-1)
                         notifyItemChanged(position)
 
                     }

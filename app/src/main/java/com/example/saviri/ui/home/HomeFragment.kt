@@ -1,11 +1,9 @@
 package com.example.saviri.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,8 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.saviri.data.ShoppingItem
 import com.example.saviri.databinding.HomeBinding
-import com.example.saviri.ui.AddCart.AddCartFragment
-import com.example.saviri.ui.login.LoginViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -55,7 +51,6 @@ class HomeFragment : Fragment() {
             shoppingAdapter.notifyItemInserted(position)
         }
 
-
         binding.apply {
             recyclerView.apply {
                 adapter = shoppingAdapter
@@ -74,8 +69,13 @@ class HomeFragment : Fragment() {
                 }
             }
 
-
+            buttonsave.apply {
+                setOnClickListener {
+                    viewModel.currencyEvent(CurrencyFormEvent.submit)
+                }
+            }
         }
+        updateTotal(shoppingAdapter.getTotal())
 
 
         val itemTouchHelper by lazy {
@@ -93,8 +93,6 @@ class HomeFragment : Fragment() {
                         val position = viewHolder.adapterPosition
                         shoppingAdapter.remove(position)
                     }
-
-
                 }
             ItemTouchHelper(simpleItemTouchCallback)
         }
@@ -106,7 +104,29 @@ class HomeFragment : Fragment() {
                 binding.exchangeRate.text = it.currencyRate
             }
         }
+        lifecycleScope.launch {
+            viewModel.currencyState.collectLatest {
+                binding.textInputLayout7.apply {
+                    error = it.currencyRateError
+                }
+            }
+        }
 
+        lifecycleScope.launch {
+            viewModel.currencyState.collectLatest {
+                if(!it.hasError){
+                    binding.textInputLayout7.apply {
+                        isErrorEnabled = it.hasError
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    private fun updateTotal(total: Double) {
+        binding.totalValue.text = total.toString()
     }
 
     fun getList(): MutableList<ShoppingItem> {

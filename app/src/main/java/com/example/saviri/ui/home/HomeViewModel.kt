@@ -1,5 +1,6 @@
 package com.example.saviri.ui.home
 
+import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -45,7 +46,33 @@ class HomeViewModel(
             is CurrencyFormEvent.CurrencyChanged -> {
                 _currencyState.value = _currencyState.value.copy(currencyRate = event.currency)
             }
+            CurrencyFormEvent.submit -> {
+                validateCurrency()
+            }
         }
+    }
+
+    private fun validateCurrency() {
+
+        _currencyState.value = _currencyState.value.copy(hasError = false)
+
+
+
+        val value = _currencyState.value.currencyRate
+        if(value.isBlank()){
+            _currencyState.value = _currencyState.value.copy(currencyRateError = "Input field is  blank")
+            return
+        }
+        val number = _currencyState.value.currencyRate.toIntOrNull()
+        val isInteger = number != null
+        if(!isInteger){
+            _currencyState.value = _currencyState.value.copy(currencyRateError = "Input field must only be digits")
+            return
+        }
+
+
+
+
     }
 
     private fun validateInputs() {
@@ -115,11 +142,13 @@ data class CartFormState(
 
 data class CurrencyFormState(
     val currencyRate : String = "",
-    val currencyRateError : String ?= null
-)
+    val currencyRateError : String ?= null,
+    val hasError : Boolean = false)
 
 sealed class CurrencyFormEvent{
     data class CurrencyChanged(val currency : String) : CurrencyFormEvent()
+
+    object submit : CurrencyFormEvent()
 }
 
 sealed class CurrencyState{
