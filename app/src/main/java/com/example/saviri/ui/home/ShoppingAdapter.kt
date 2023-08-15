@@ -26,6 +26,11 @@ class ShoppingAdapter (
     }
 
     override fun getItemCount() = items.size
+    fun remove(position: Int) {
+
+        items.removeAt(position)
+        notifyItemRemoved(position)
+    }
 
     inner class ShoppingViewHolder(private val binding: ShopingItemBinding):RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ShoppingItem,position: Int){
