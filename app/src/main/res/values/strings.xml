@@ -15,4 +15,5 @@
     <string name="add_to_cart">Add To Cart</string>
     <string name="item_price">Item Price</string>
     <string name="item_name">Item Name</string>
+    <string name="input_exchange_rate">input exchange rate</string>
 </resources>
