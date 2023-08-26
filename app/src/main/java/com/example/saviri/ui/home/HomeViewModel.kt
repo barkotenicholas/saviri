@@ -13,19 +13,53 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.update
 
 class HomeViewModel(
     private val  validateCart: ValidateCart = ValidateCart()
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(CartFormState())
+    private var _state = MutableStateFlow(CartFormState())
     val state = _state.asStateFlow()
 
-    private val cartValidationEventChannel = Channel<CartState>()
+    private var cartValidationEventChannel = Channel<CartState>()
     val cartValidationChannel = cartValidationEventChannel.receiveAsFlow()
 
-    private val _currencyState = MutableStateFlow(CurrencyFormState())
+    private var _currencyState = MutableStateFlow(CurrencyFormState())
     val currencyState = _currencyState.asStateFlow()
+
+    private var _stateCartItems = MutableStateFlow(mutableListOf<ShoppingItem>())
+    val stateCartItems = _stateCartItems.asStateFlow()
+
+    private var _addCartEventChannel = Channel<AddCartState>()
+    val addCartEventChannel = _addCartEventChannel.receiveAsFlow()
+
+
+    init {
+        _stateCartItems.value = getList()
+    }
+
+    fun addItemsToCart(event: AddCartEvent) {
+        when(event){
+            is AddCartEvent.CartChanged -> {
+//                Log.d("TAG", "addItemsToCart:---------------------------${_stateCartItems.value.size}")
+//                val current = _stateCartItems.value.toMutableList()
+//                Log.d("TAG", "addItemsToCart: ------------------${current.size}")
+//
+//                val item = event.item
+//                current.add(event.item)
+//                Log.d("TAG", "addItemsToCart: ------------------${_stateCartItems.value.size}")
+//                _stateCartItems.update {
+//                    current
+//                }
+                _stateCartItems.value += event.item
+                viewModelScope.launch {
+                    _addCartEventChannel.send(AddCartState.CartState(1))
+                }
+            }
+        }
+    }
 
     fun event(event: CartFormEvent){
         when(event){
@@ -130,7 +164,14 @@ class HomeViewModel(
             }
         }
     }
-
+    fun getList(): MutableList<ShoppingItem> {
+        return mutableListOf(
+            ShoppingItem("beer", 20.0, 8),
+            ShoppingItem("beer", 20.0, 8),
+            ShoppingItem("beer", 20.0, 8),
+            ShoppingItem("beer", 20.0, 8)
+        )
+    }
 }
 
 data class CartFormState(
@@ -145,6 +186,13 @@ data class CurrencyFormState(
     val currencyRateError : String ?= null,
     val hasError : Boolean = false)
 
+sealed class AddCartEvent{
+    data class CartChanged(val item:ShoppingItem) : AddCartEvent()
+}
+
+sealed class AddCartState{
+    data class CartState(val position:Int) : AddCartState()
+}
 sealed class CurrencyFormEvent{
     data class CurrencyChanged(val currency : String) : CurrencyFormEvent()
 
@@ -172,4 +220,12 @@ sealed class CartState{
     data class ItemPriceError(val message : String):CartState()
 
     object Clear: CartState()
+}
+
+fun <T> List<T>.mapButReplace(targetItem: T, newItem: T) = map {
+    if (it == targetItem) {
+        newItem
+    } else {
+        it
+    }
 }

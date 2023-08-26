@@ -1,9 +1,10 @@
 package com.example.saviri.ui.home
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,8 +15,11 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.saviri.R
 import com.example.saviri.data.ShoppingItem
 import com.example.saviri.databinding.HomeBinding
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -34,21 +38,34 @@ class HomeFragment : Fragment() {
 
         binding = HomeBinding.inflate(inflater,container,false)
 
-        return binding.root
+        (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider{
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.add_cart,menu)
+            }
 
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when(menuItem.itemId){
+                    R.id.add_Item_cart->{
+                        findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2())
+                        return true
+                    }
+                }
+            return false
+            }
+
+        },viewLifecycleOwner)
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val items = getList()
-        val shoppingAdapter = ShoppingAdapter(items)
+        val shoppingAdapter = ShoppingAdapter(viewModel.stateCartItems.value)
 
         shoppingItem = args.info
         if (shoppingItem != null) {
-            items.add(shoppingItem!!)
-            var position = items.indexOf(shoppingItem)
-            shoppingAdapter.notifyItemInserted(position)
+            viewModel.addItemsToCart(AddCartEvent.CartChanged(shoppingItem!!))
         }
 
         binding.apply {
@@ -56,11 +73,6 @@ class HomeFragment : Fragment() {
                 adapter = shoppingAdapter
                 layoutManager = LinearLayoutManager(requireContext())
                 setHasFixedSize(true)
-            }
-            floatingActionButton.apply {
-                setOnClickListener {
-                    findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2())
-                }
             }
 
             currencyRate.apply {
@@ -99,6 +111,19 @@ class HomeFragment : Fragment() {
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+
+
+        lifecycleScope.launch {
+            viewModel.addCartEventChannel.collectLatest {
+                when (it){
+                    is AddCartState.CartState -> {
+                        Log.d("TAG", "onViewCreated:---------------------------------- ")
+                        shoppingAdapter.notifyItemInserted(it.position)
+                    }
+                }
+            }
+        }
+
         lifecycleScope.launch {
             viewModel.currencyState.collectLatest {
                 binding.exchangeRate.text = it.currencyRate
@@ -127,15 +152,6 @@ class HomeFragment : Fragment() {
 
     private fun updateTotal(total: Double) {
         binding.totalValue.text = total.toString()
-    }
-
-    fun getList(): MutableList<ShoppingItem> {
-        return mutableListOf(
-            ShoppingItem("beer", 20.0, 8),
-            ShoppingItem("beer", 20.0, 8),
-            ShoppingItem("beer", 20.0, 8),
-            ShoppingItem("beer", 20.0, 8)
-        )
     }
 
 }
