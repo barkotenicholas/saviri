@@ -117,7 +117,6 @@ class HomeFragment : Fragment() {
             viewModel.addCartEventChannel.collectLatest {
                 when (it){
                     is AddCartState.CartState -> {
-                        Log.d("TAG", "onViewCreated:---------------------------------- ")
                         shoppingAdapter.notifyItemInserted(it.position)
                     }
                 }
@@ -127,6 +126,17 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.currencyState.collectLatest {
                 binding.exchangeRate.text = it.currencyRate
+                var a = ""
+
+                var stringnumber = it.currencyRate
+                if(stringnumber.isBlank()){
+                    a = "0"
+                }else{
+                    a = stringnumber
+                }
+                var doublecurrency = a.toDouble()
+                val homecurrency = doublecurrency * shoppingAdapter.getTotal()
+                binding.textView7.text = homecurrency.toString()
             }
         }
         lifecycleScope.launch {
@@ -152,6 +162,11 @@ class HomeFragment : Fragment() {
 
     private fun updateTotal(total: Double) {
         binding.totalValue.text = total.toString()
+        lifecycleScope.launch {
+            viewModel.currencyState.collectLatest {
+
+            }
+        }
     }
 
 }
