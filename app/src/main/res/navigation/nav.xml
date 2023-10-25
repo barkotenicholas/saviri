@@ -18,6 +18,9 @@
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_fragment_countryList"
+            app:destination="@id/fragment_countryList" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
@@ -61,4 +64,8 @@
         </action>
 
     </fragment>
+    <fragment
+        android:id="@+id/fragment_countryList"
+        android:name="com.example.saviri.ui.choosecountry.fragment_countryList"
+        android:label="fragment_countryList" />
 </navigation>

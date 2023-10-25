@@ -11,15 +11,13 @@ object ApiClient {
     private const val BASE_URL = "http://api.exchangeratesapi.io/v1/"
     const val API_KEY = "e73ebdecad552de06eec147b8817abad"
 
-    val okHttpClient=OkHttpClient()
-        .newBuilder()
-        .addInterceptor(RequestInterceptor)
-        .build()
+    val okHttpClient: OkHttpClient =OkHttpClient().newBuilder().addInterceptor(RequestInterceptor).build()
+
 
     fun getClient():Retrofit=
         Retrofit.Builder()
-            .client(okHttpClient)
             .baseUrl(BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -31,12 +29,17 @@ object ApiClient {
 object RequestInterceptor: Interceptor{
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
+
         val originalHttp = chain.request().url()
         val newUrl = originalHttp
             .newBuilder()
-            .addQueryParameter("access_key", ApiClient.API_KEY).build()
-        println("Outgoing request to ${newUrl}")
-        return chain.proceed(request.build())
+            .addQueryParameter("access_key", ApiClient.API_KEY).
+            build()
+        println("Outgoing request to $newUrl")
+
+        val newRequest = request.url(newUrl).build()
+
+        return chain.proceed(newRequest)
     }
 
 }
