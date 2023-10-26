@@ -16,6 +16,7 @@ import com.example.saviri.R
 import com.example.saviri.databinding.FragmentChooseCountryBinding
 import com.example.saviri.network.models.Symbols
 import com.example.saviri.ui.home.HomeViewModel
+import com.example.saviri.util.ProgessDialog
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.log
@@ -41,19 +42,23 @@ class fragment_countryList: Fragment() {
         lifecycleScope.launch {
             viewModel.getCountries()
         }
+        val dialog = ProgessDialog.progressDialog(activity!!)
 
 
         lifecycleScope.launch {
             viewModel.validationchannel.collectLatest {
                 when (it) {
                     is ChooseCountryState.OnDataRecieve -> {
-                        Log.i("fragment home", "onViewCreated: ${it.country} ")
+                        dialog.dismiss()
                         val supported_currencies = it.country.symbols!!.getList()
-                        Log.i("/*/*/*/*/", "onViewCreated: ${supported_currencies::class.java.typeName}")
 
                         val arrayAdapter = ArrayAdapter(requireContext(),R.layout.drop_down_menu_item,supported_currencies)
 
                         binding.autoCompleteTextView.setAdapter(arrayAdapter)
+                        binding.autoCompleteTextView1.setAdapter(arrayAdapter)
+                    }
+                    ChooseCountryState.Loading -> {
+                        dialog.show()
                     }
                 }
             }

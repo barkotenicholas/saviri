@@ -27,10 +27,14 @@ class ChooseCountryViewModel(
     private var validationEventChannel = Channel<ChooseCountryState>()
     val validationchannel = validationEventChannel.receiveAsFlow()
 
-    fun getCountries(){
+    suspend fun getCountries(){
+
+        validationEventChannel.send(ChooseCountryState.Loading)
+
         viewModelScope.launch {
-            Log.i("sads", "getCountries: list all supported countess")
+
             var results = repository.getSupportedCountries()
+            Log.d("*-*-***-*-*-**-*-*", "getCountries: After results")
             if(results.success == true){
                 Log.i("TAG---------", "getCountries: ${results.symbols}")
                 _countries.value = _countries.value?.copy(results.success,results.symbols)
@@ -38,7 +42,8 @@ class ChooseCountryViewModel(
                     Countries(results.success,results.symbols)
                 ))
                 Log.i("**********0", "getCountries: ${_countries.value?.success}")
-
+            }else{
+                Log.i("---------------------", "getCountries: ${results.success}")
             }
         }
     }
@@ -55,5 +60,7 @@ class ChooseCountryViewModel(
 }
 
 sealed class ChooseCountryState{
+
+    object Loading:ChooseCountryState()
     data class OnDataRecieve(val country :Countries) : ChooseCountryState()
 }
