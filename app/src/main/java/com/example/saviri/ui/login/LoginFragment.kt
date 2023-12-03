@@ -91,6 +91,7 @@ class LoginFragment : Fragment() {
                             }
                         }
                     }
+                    else -> {}
                 }
 
             }
@@ -115,12 +116,13 @@ class LoginFragment : Fragment() {
                     is Resource.Success -> {
 
                         dialog.dismiss()
-                        val action = LoginFragmentDirections.actionLoginFragmentToFragmentCountryList()
+                        val action = LoginFragmentDirections.actionLoginFragmentToAllShopping()
                         findNavController().navigate(action)
                         toastutil.showMessage(it.result.email,activity)
                     }
                     null -> {
                     }
+                    else -> {}
                 }
             }
         }

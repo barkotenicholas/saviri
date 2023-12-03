@@ -16,4 +16,6 @@
     <string name="item_price">Item Price</string>
     <string name="item_name">Item Name</string>
     <string name="input_exchange_rate">input exchange rate</string>
+    <string name="choose_currency">Choose currency</string>
+    <string name="shoping_list_name">Shoping List Name</string>
 </resources>

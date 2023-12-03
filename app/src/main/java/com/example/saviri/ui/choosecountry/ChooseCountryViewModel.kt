@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.saviri.domain.usecases.ValidateEmail
+import com.example.saviri.domain.usecases.ValidateName
 import com.example.saviri.network.ApiClient
 import com.example.saviri.network.models.Countries
 import com.example.saviri.network.models.Symbols
 import com.example.saviri.repository.api.ApiRepoeImpl
 import com.example.saviri.ui.home.HomeViewModel
+import com.example.saviri.ui.login.LoginState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,14 +21,17 @@ import kotlinx.coroutines.launch
 import kotlin.math.log
 
 class ChooseCountryViewModel(
-    private val repository:ApiRepoeImpl
-): ViewModel() {
+    private val repository:ApiRepoeImpl,
+    private val validateName: ValidateName = ValidateName(),
+
+    ): ViewModel() {
 
     private var _countries = MutableStateFlow<Countries?>(Countries(success = false, Symbols()))
     private val countries = _countries.asStateFlow()
 
     private var validationEventChannel = Channel<ChooseCountryState>()
     val validationchannel = validationEventChannel.receiveAsFlow()
+
 
     suspend fun getCountries(){
 
@@ -57,10 +63,16 @@ class ChooseCountryViewModel(
             }
         }
     }
+
+
 }
 
-sealed class ChooseCountryState{
+sealed class  ChooseCountryState{
 
     object Loading:ChooseCountryState()
     data class OnDataRecieve(val country :Countries) : ChooseCountryState()
+
+    data class ShoppingNameError(val message: String): ChooseCountryState()
+
+
 }

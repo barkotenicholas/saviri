@@ -19,8 +19,8 @@
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_fragment_countryList"
-            app:destination="@id/fragment_countryList" />
+            android:id="@+id/action_loginFragment_to_allShopping"
+            app:destination="@id/allShopping" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
@@ -41,12 +41,27 @@
         tools:layout="@layout/home" >
         <action
             android:id="@+id/action_homeFragment2_to_addCartFragment2"
-            app:destination="@id/addCartFragment2" />
+            app:destination="@id/addCartFragment2"
+            />
+
         <argument
-            android:name="info"
-            app:argType="com.example.saviri.data.ShoppingItem"
+            android:name="values"
+            app:argType="com.example.saviri.util.Conversion"
             app:nullable="true"
             android:defaultValue="@null" />
+        <argument
+            android:name="shoplist"
+            app:argType="com.example.saviri.data.ShoppingItem[]" />
+        <argument
+            android:name="item"
+            app:argType="com.example.saviri.data.ShoppingItem"
+            app:nullable="true" />
+        <argument
+            android:name="shoppinglistid"
+            app:argType="string" />
+        <argument
+            android:name="shopingListName"
+            app:argType="string" />
 
 
     </fragment>
@@ -58,14 +73,37 @@
         <action
             android:id="@+id/action_addCartFragment2_to_homeFragment2"
             app:destination="@id/homeFragment2"
-            app:popUpTo="@id/homeFragment2"
-            app:popUpToInclusive="true">
+        >
 
         </action>
+        <argument
+            android:name="shoppinglist"
+            app:argType="com.example.saviri.data.ShoppingItem[]" />
+        <argument
+            android:name="converstion"
+            app:argType="com.example.saviri.util.Conversion" />
+        <argument
+            android:name="shoppinglistid"
+            app:argType="string" />
+        <argument android:name="shopinglistname"
+            app:argType="string" />
 
     </fragment>
     <fragment
         android:id="@+id/fragment_countryList"
         android:name="com.example.saviri.ui.choosecountry.fragment_countryList"
-        android:label="fragment_countryList" />
+        android:label="Select Country and Shopping List Name" >
+        <action
+            android:id="@+id/action_fragment_countryList_to_homeFragment2"
+            app:destination="@id/homeFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/allShopping"
+        android:name="com.example.saviri.ui.AllShoppingList.AllShopping"
+        android:label="Home"
+        tools:layout="@layout/fragment_all_shopping" >
+        <action
+            android:id="@+id/action_allShopping_to_fragment_countryList"
+            app:destination="@id/fragment_countryList" />
+    </fragment>
 </navigation>

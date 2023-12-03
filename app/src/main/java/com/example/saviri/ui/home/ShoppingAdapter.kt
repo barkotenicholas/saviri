@@ -8,7 +8,11 @@ import com.example.saviri.databinding.ShopingItemBinding
 
 class ShoppingAdapter (
     private var items:MutableList<ShoppingItem>,
+    private var shoppingListener: ShoppingListener
     ) : RecyclerView.Adapter<ShoppingAdapter.ShoppingViewHolder>() {
+
+
+    private lateinit var shoppingListeners: ShoppingListener
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -43,14 +47,17 @@ class ShoppingAdapter (
     inner class ShoppingViewHolder(private val binding: ShopingItemBinding):RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ShoppingItem,position: Int){
             binding.apply {
+
                 itemName.text = item.name
                 itemAmount.text = item.quantity.toString()
+                localPrice.text = item.price.toString()
 
                 addQuantity.apply {
                     setOnClickListener {
 
                         items[position] = item.copy(quantity = item.quantity+1)
                         notifyItemChanged(position)
+                        shoppingListener.onItemAdd(items.toTypedArray())
 
                     }
                 }
@@ -60,6 +67,7 @@ class ShoppingAdapter (
 
                         items[position] = item.copy(quantity = if(item.quantity == 1) 1 else item.quantity-1)
                         notifyItemChanged(position)
+                        shoppingListener.onItemAdd(items.toTypedArray())
 
                     }
                 }
@@ -68,6 +76,8 @@ class ShoppingAdapter (
                     setOnClickListener {
                          items.removeAt(position)
                          notifyItemRemoved(position)
+                        shoppingListener.onItemAdd(items.toTypedArray())
+
                     }
                 }
             }

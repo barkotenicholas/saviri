@@ -1,5 +1,6 @@
 package com.example.saviri.ui.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -18,25 +19,58 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.saviri.R
 import com.example.saviri.data.ShoppingItem
 import com.example.saviri.databinding.HomeBinding
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.example.saviri.util.Conversion
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.math.RoundingMode
 
-
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment() , ShoppingListener{
 
     private lateinit var binding :HomeBinding
     private val viewModel : HomeViewModel by viewModels { HomeViewModel.Factory  }
     private val args:HomeFragmentArgs by navArgs()
     private  var shoppingItem: ShoppingItem? = null
+    private var conversion:Conversion? = null
+    private lateinit var shoppingAdapter:ShoppingAdapter
+    private lateinit var shoppingId:String
+    private lateinit var shoppingListName:String
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
-        binding = HomeBinding.inflate(inflater,container,false)
+        if(this::binding.isInitialized.not()){
+            binding = HomeBinding.inflate(inflater,container,false)
+            shoppingAdapter = ShoppingAdapter(viewModel.stateCartItems.value,this)
+        }
+
+
+        return binding.root
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+
+        shoppingItem = args.item
+        val shoppingItems = args.shoplist
+        shoppingId = args.shoppinglistid
+
+        viewModel.addItemsToCart(AddCartEvent.AddAllItems(shoppingItems))
+        conversion = args.values
+
+        shoppingListName = args.shopingListName
+
+        if(conversion != null){
+            viewModel.getLatestCurrency(conversion!!,shoppingAdapter.getTotal(),shoppingId,shoppingListName)
+        }
+        if (shoppingItem != null) {
+            viewModel.addItemsToCart(AddCartEvent.CartChanged(shoppingItem!!))
+            updateTotal(shoppingAdapter.getTotal())
+
+        }
 
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider{
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -46,26 +80,27 @@ class HomeFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when(menuItem.itemId){
                     R.id.add_Item_cart->{
-                        findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2())
+                        val list = viewModel.stateCartItems.value.toTypedArray()
+                        val shopinglist = viewModel.shoppinglistid.value
+                        findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2(
+                            list,
+                            conversion!!,
+                            shopinglist,
+                            shoppingListName
+                        ))
                         return true
                     }
                 }
-            return false
+                return false
             }
 
         },viewLifecycleOwner)
 
-        return binding.root
-    }
+        lifecycleScope.launch {
+            viewModel.stateCartItems.collect{ items->
+                Log.d("}}}}}}}", "onViewCreated: ${items.size} ")
+            }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val shoppingAdapter = ShoppingAdapter(viewModel.stateCartItems.value)
-
-        shoppingItem = args.info
-        if (shoppingItem != null) {
-            viewModel.addItemsToCart(AddCartEvent.CartChanged(shoppingItem!!))
         }
 
         binding.apply {
@@ -83,11 +118,10 @@ class HomeFragment : Fragment() {
 
             buttonsave.apply {
                 setOnClickListener {
-                    viewModel.currencyEvent(CurrencyFormEvent.submit)
+                    Log.d("qwerty", "onViewCreated: ${viewModel.stateCartItems.value} ")
                 }
             }
         }
-        updateTotal(shoppingAdapter.getTotal())
 
 
         val itemTouchHelper by lazy {
@@ -104,6 +138,8 @@ class HomeFragment : Fragment() {
                     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                         val position = viewHolder.adapterPosition
                         shoppingAdapter.remove(position)
+                        updateTotal(shoppingAdapter.getTotal())
+
                     }
                 }
             ItemTouchHelper(simpleItemTouchCallback)
@@ -111,7 +147,24 @@ class HomeFragment : Fragment() {
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
+        lifecycleScope.launch {
+            viewModel.currencyvalidationEvents.collect{
+                when(it){
+                    CurrencyState.Clear -> {
 
+                    }
+                    is CurrencyState.CurrencyConverted -> {
+                        val currencyData = it.convertedData.toBigDecimal().setScale(2,RoundingMode.DOWN)
+                        binding.textView7.apply {
+                            text = currencyData.toString()
+                        }
+                    }
+                    is CurrencyState.CurrencyError -> {
+
+                    }
+                }
+            }
+        }
 
         lifecycleScope.launch {
             viewModel.addCartEventChannel.collectLatest {
@@ -129,6 +182,10 @@ class HomeFragment : Fragment() {
                 var a = ""
 
                 var stringnumber = it.currencyRate
+
+                var foreignMoneyToEuro = it.foreignCurrencyToEuro
+                var localCurrencyToEuro = it.homeCurrencyToEuro
+
                 if(stringnumber.isBlank()){
                     a = "0"
                 }else{
@@ -137,6 +194,8 @@ class HomeFragment : Fragment() {
                 var doublecurrency = a.toDouble()
                 val homecurrency = doublecurrency * shoppingAdapter.getTotal()
                 binding.textView7.text = homecurrency.toString()
+
+
             }
         }
         lifecycleScope.launch {
@@ -146,7 +205,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-
         lifecycleScope.launch {
             viewModel.currencyState.collectLatest {
                 if(!it.hasError){
@@ -157,16 +215,26 @@ class HomeFragment : Fragment() {
             }
         }
 
-
     }
 
     private fun updateTotal(total: Double) {
         binding.totalValue.text = total.toString()
-        lifecycleScope.launch {
-            viewModel.currencyState.collectLatest {
+    }
 
-            }
-        }
+
+    override fun onItemAdd(shoppingItems: Array<ShoppingItem>) {
+        updateTotal(shoppingAdapter.getTotal())
+        viewModel.getLatestCurrency(
+            conversion!!,
+            shoppingAdapter.getTotal(),
+            shoppingId,
+            shoppingListName
+        )
+
+    }
+
+    override fun onItemQuantityAdd(shoppingItems: Array<ShoppingItem>) {
+        updateTotal(shoppingAdapter.getTotal())
     }
 
 }

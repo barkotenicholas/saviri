@@ -29,6 +29,13 @@ class AddCartFragment : Fragment() {
 
         binding = CartFragmentBinding.inflate(inflater,container,false)
 
+        var args = AddCartFragmentArgs.fromBundle(arguments!!)
+        val shoppnglist = args.shoppinglist
+        val conversion = args.converstion
+        val shoppingListId = args.shoppinglistid
+        val shoppinglistname = args.shopinglistname
+        Log.d("TAG", "onCreateView: ${args.shoppinglist.size} ")
+        Log.d("TAG", "onCreateView: ${args.converstion.convertFrom} ")
         binding.apply {
 
             itemNamId.apply {
@@ -64,7 +71,6 @@ class AddCartFragment : Fragment() {
 
                     }
                     is CartState.ItemNameError -> {
-                        Log.d("TAG", "Home: ------")
 
                         binding.itemName.apply {
                             isErrorEnabled = true
@@ -83,7 +89,7 @@ class AddCartFragment : Fragment() {
 
                         val passData = event.item
                         Log.d("TAG", "onCreateView: $passData")
-                        val action = AddCartFragmentDirections.actionAddCartFragment2ToHomeFragment2().setInfo(passData)
+                        val action = AddCartFragmentDirections.actionAddCartFragment2ToHomeFragment2(shoppnglist,passData,shoppingListId,shoppinglistname).setValues(conversion)
                         findNavController().navigate(action)
                     }
                 }
