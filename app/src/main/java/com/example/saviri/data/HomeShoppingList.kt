@@ -4,4 +4,4 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class ShoppingListName(val name:String=""):Parcelable
+data class HomeShoppingList(val id : String,val name:String) : Parcelable

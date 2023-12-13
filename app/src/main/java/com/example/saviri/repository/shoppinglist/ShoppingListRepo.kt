@@ -1,6 +1,8 @@
 package com.example.saviri.repository.shoppinglist
 
+import com.example.saviri.data.HomeShoppingList
 import com.example.saviri.data.ShoppingItem
+import com.example.saviri.data.ShoppingListName
 import com.example.saviri.util.Conversion
 import com.google.firebase.auth.FirebaseUser
 
@@ -14,4 +16,5 @@ interface ShoppingListRepo {
 
     suspend fun createShoppingList(shoppingListName:String,conversion: Conversion)
 
+    suspend fun getUserShoppingList():List<HomeShoppingList>
 }

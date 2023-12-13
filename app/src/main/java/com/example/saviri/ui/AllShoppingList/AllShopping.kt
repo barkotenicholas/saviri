@@ -1,23 +1,33 @@
 package com.example.saviri.ui.AllShoppingList
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.saviri.data.HomeShoppingList
 import com.example.saviri.databinding.FragmentAllShoppingBinding
+import com.example.saviri.ui.home.ShoppingAdapter
+import com.example.saviri.util.ProgessDialog
+import com.example.saviri.util.ToastUtil
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
-
-class AllShopping : Fragment() {
+class AllShopping : Fragment() ,AllShoppingItemListener{
 
     private lateinit var binding: FragmentAllShoppingBinding
     private val viewModel : AllShoppingViewModel by viewModels { AllShoppingViewModel.Factory }
+    private lateinit var listAdapter: AllShoppingAdapter
+    private lateinit  var toastutil: ToastUtil
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -26,11 +36,21 @@ class AllShopping : Fragment() {
     ): View {
 
         binding = FragmentAllShoppingBinding.inflate(inflater,container,false)
+        toastutil = ToastUtil()
+        val dialog = ProgessDialog.progressDialog(activity!!)
 
+        listAdapter = AllShoppingAdapter(viewModel.stateCartItems.value,this)
 
+        lifecycleScope.launch {
+            dialog.show()
+            viewModel.loadData()
+        }
 
         binding.apply {
 
+            shoppinglist.apply {
+
+            }
 
             createnewshopinglist.apply {
                 setOnClickListener {
@@ -38,8 +58,39 @@ class AllShopping : Fragment() {
                     findNavController().navigate(action)
                 }
             }
-        }
 
+            shoppinglist.apply{
+                adapter = listAdapter
+                layoutManager = LinearLayoutManager(requireContext())
+                setHasFixedSize(true)
+
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.loadingEvent.collectLatest {
+                when(it){
+
+                    AllShoppingViewModel.AllShoppingState.Loading -> {
+                        Log.d("TAG", "onCreateView: ****************")
+                    }
+                    is AllShoppingViewModel.AllShoppingState.Success -> {
+                        if(viewModel.stateCartItems.value.size == 0 ){
+                            toastutil.showMessage("You have no Shopping items please add",activity)
+                        }else{
+                            listAdapter.itemsInserted(viewModel.stateCartItems.value)
+                        }
+                    }
+                    is AllShoppingViewModel.AllShoppingState.ReceivedData -> {
+                        dialog.dismiss()
+                        if(it.mutableList.size>0){
+                            listAdapter.itemsInserted(it.mutableList)
+                        }else{
+                            toastutil.showMessage("You have no Shopping items please add",activity)
+                        }
+                    }
+                }
+            }
+        }
 
         return binding.root
     }
@@ -51,5 +102,9 @@ class AllShopping : Fragment() {
             AllShopping().apply {
 
             }
+    }
+
+    override fun onShoppingItemSelectListener(item: HomeShoppingList) {
+        Log.d("TAG", "onShoppingItemSelectListener: $item ")
     }
 }
