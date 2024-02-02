@@ -22,9 +22,11 @@ class MainActivity : AppCompatActivity() {
         val appBarConfiguration = AppBarConfiguration.Builder(
             R.id.loginFragment,
             R.id.homeFragment2,
-            R.id.allShopping
-        )
-            .build()
+            R.id.allShopping,
+            R.id.add_Item_cart,
+            R.id.fragment_countryList,
+        ).build()
+
         val navcontroller = navhost.navController
 
         setupActionBarWithNavController(navcontroller,appBarConfiguration)

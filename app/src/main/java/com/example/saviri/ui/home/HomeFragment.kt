@@ -69,7 +69,6 @@ class HomeFragment : Fragment() , ShoppingListener{
         if (shoppingItem != null) {
             viewModel.addItemsToCart(AddCartEvent.CartChanged(shoppingItem!!))
             updateTotal(shoppingAdapter.getTotal())
-
         }
 
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider{

@@ -13,7 +13,7 @@ import com.google.firebase.database.*
 class ShoppingListRepoImpl(
     private val firebaseAuth: FirebaseAuth,
     private var firebaseDatabase:DatabaseReference
-) :ShoppingListRepo  {
+) :ShoppingListRepo {
 
     override val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
@@ -28,7 +28,8 @@ class ShoppingListRepoImpl(
 
         val itemref = firebaseDatabase.child(shoppingListId.toString()).push().key
 
-        firebaseDatabase.child(shoppingListId.toString()).child("items").child(itemref.toString()).setValue(item)
+        firebaseDatabase.child(shoppingListId.toString()).child("items").child(itemref.toString())
+            .setValue(item)
         firebaseDatabase.child(shoppingListId.toString()).child("conversion").setValue(conversion)
         firebaseDatabase.child(shoppingListId.toString()).child("name").setValue(shoppingListName)
 
@@ -36,19 +37,20 @@ class ShoppingListRepoImpl(
     }
 
     init {
-        firebaseDatabase = FirebaseDatabase.getInstance().getReference(currentUser!!.uid).child("ShoppingList")
+        firebaseDatabase =
+            FirebaseDatabase.getInstance().getReference(currentUser!!.uid).child("ShoppingList")
     }
-
 
 
     override suspend fun insertToExistingList(item: ShoppingItem, shoppingRefernce: String) {
         val itemref = firebaseDatabase.child(shoppingRefernce).push().key
 
-        Log.d("|ASasASasASas" ,"insertToExistingList: $shoppingRefernce")
-        firebaseDatabase.child(shoppingRefernce).child("items").child(itemref.toString()).setValue(item)
+        Log.d("|ASasASasASas", "insertToExistingList: $shoppingRefernce")
+        firebaseDatabase.child(shoppingRefernce).child("items").child(itemref.toString())
+            .setValue(item)
     }
 
-    override suspend fun createShoppingList(shoppingListName: String,conversion: Conversion) {
+    override suspend fun createShoppingList(shoppingListName: String, conversion: Conversion) {
 
 
         val shoppingListId = firebaseDatabase.push().key
@@ -59,16 +61,21 @@ class ShoppingListRepoImpl(
 
     override suspend fun getUserShoppingList(): List<HomeShoppingList> {
 
-        var data  = firebaseDatabase.get().await()
+        var data = firebaseDatabase.get().await()
         Log.d("TAG", "getUserShoppingList: $data")
-        var shopingList:List<HomeShoppingList> = emptyList()
-        for (d in data.children){
+        var shopingList: List<HomeShoppingList> = emptyList()
+        for (d in data.children) {
+            Log.d("aaasdq", "getUserShoppingList: ${d}")
             Log.d("TAG", "getUserShoppingList: ${d.key}")
             var data1 = firebaseDatabase.child(d.key.toString()).get().await()
             var data2 = this.getShoppingData(d.key.toString(), data1)
-
+            var data3 = this.getShoppingConvertion(d.key.toString(), data1)
+            var ig = this.getShoppingList(d.key.toString(), data1)
 //            shopingList = shopingList + data2
-            shopingList = shopingList + HomeShoppingList(data1.key.toString(),data2.name)
+            shopingList = shopingList + HomeShoppingList(
+                data1.key.toString(), data2.name, conversion = data3,
+                shoppinglist = ig
+            )
             Log.d("TAG", "getUserShoppingList---------------: ${data1}")
         }
 
@@ -78,12 +85,12 @@ class ShoppingListRepoImpl(
 
     private suspend fun getShoppingData(data11: String, data1: DataSnapshot): ShoppingListName {
 
-        for(snap in data1.children){
+        for (snap in data1.children) {
 
-            if (snap.key == "name"){
+            if (snap.key == "name") {
                 val data = firebaseDatabase.child(data11).child(snap.key.toString()).get().await()
 
-                if(data != null){
+                if (data != null) {
                     return ShoppingListName(data.value as String)
                 }
 
@@ -94,5 +101,52 @@ class ShoppingListRepoImpl(
 
     }
 
+    private suspend fun getShoppingConvertion(data11: String, data1: DataSnapshot): Conversion {
+
+        for (snap in data1.children) {
+
+            if (snap.key == "conversion") {
+                val data = firebaseDatabase.child(data11).child(snap.key.toString()).get().await()
+
+                if (data != null) {
+                    Log.d("TAGAASA", "getShoppingConvertion: ${data}")
+                    return data.getValue(Conversion::class.java)!!
+                }
+
+            }
+
+        }
+        return Conversion("", "")
+
+    }
+
+    private suspend fun getShoppingList(data11: String, data1: DataSnapshot): List<ShoppingItem> {
+
+        var shopingList: MutableList<ShoppingItem> = mutableListOf()
+
+        for (snap in data1.children) {
+
+            if (snap.key == "items") {
+                val data = firebaseDatabase.child(data11).child(snap.key.toString()).get().await()
+
+                if (data != null) {
+                    Log.d("TAGAASA", "getShoppinasdasdadsdasdgConvertion: ${data.getValue()}")
+//                    return data.getValue(Conversion::class.java)!!
+                    var dat = data.children
+                    dat.forEach {
+                        Log.d(
+                            "TAG*--*-*-*-*--*",
+                            "getShoppingList: ${it.getValue(ShoppingItem::class.java)} "
+                        )
+                        shopingList.add(it.getValue(ShoppingItem::class.java)!!)
+                    }
+                }
+
+            }
+
+        }
+        return shopingList
+
+    }
 
 }

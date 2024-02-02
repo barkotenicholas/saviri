@@ -10,12 +10,6 @@
         android:label="Login"
         tools:layout="@layout/fragment_login" >
         <action
-            android:id="@+id/action_loginFragment_to_homeFragment2"
-            app:destination="@id/homeFragment2"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true"
-            />
-        <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
         <action
@@ -42,7 +36,7 @@
         <action
             android:id="@+id/action_homeFragment2_to_addCartFragment2"
             app:destination="@id/addCartFragment2"
-            />
+            app:popUpTo="@id/homeFragment2" />
 
         <argument
             android:name="values"
@@ -73,7 +67,8 @@
         <action
             android:id="@+id/action_addCartFragment2_to_homeFragment2"
             app:destination="@id/homeFragment2"
-        >
+            app:popUpTo="@id/homeFragment2"
+            app:popUpToInclusive="true">
 
         </action>
         <argument
@@ -92,10 +87,13 @@
     <fragment
         android:id="@+id/fragment_countryList"
         android:name="com.example.saviri.ui.choosecountry.fragment_countryList"
-        android:label="Select Country and Shopping List Name" >
+        android:label="Shopping list">
         <action
             android:id="@+id/action_fragment_countryList_to_homeFragment2"
-            app:destination="@id/homeFragment2" />
+            app:destination="@id/homeFragment2"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/fragment_countryList"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/allShopping"
@@ -103,7 +101,14 @@
         android:label="Home"
         tools:layout="@layout/fragment_all_shopping" >
         <action
+
             android:id="@+id/action_allShopping_to_fragment_countryList"
-            app:destination="@id/fragment_countryList" />
+            app:destination="@id/fragment_countryList"
+            app:popUpTo="@id/allShopping" />
+        <action
+            android:id="@+id/action_allShopping_to_homeFragment2"
+            app:destination="@id/homeFragment2"
+            app:popUpTo="@id/allShopping"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

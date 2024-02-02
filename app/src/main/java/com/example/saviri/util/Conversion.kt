@@ -5,4 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 
 @Parcelize
-data class Conversion(val convertFrom:String,val convertTo:String) : Parcelable
+data class Conversion(val convertFrom:String,val convertTo:String) : Parcelable {
+    constructor() : this("","")
+}

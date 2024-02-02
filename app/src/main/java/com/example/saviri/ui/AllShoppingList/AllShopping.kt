@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.saviri.data.HomeShoppingList
 import com.example.saviri.databinding.FragmentAllShoppingBinding
@@ -37,12 +38,12 @@ class AllShopping : Fragment() ,AllShoppingItemListener{
 
         binding = FragmentAllShoppingBinding.inflate(inflater,container,false)
         toastutil = ToastUtil()
+
         val dialog = ProgessDialog.progressDialog(activity!!)
 
         listAdapter = AllShoppingAdapter(viewModel.stateCartItems.value,this)
 
         lifecycleScope.launch {
-            dialog.show()
             viewModel.loadData()
         }
 
@@ -71,16 +72,22 @@ class AllShopping : Fragment() ,AllShoppingItemListener{
                 when(it){
 
                     AllShoppingViewModel.AllShoppingState.Loading -> {
-                        Log.d("TAG", "onCreateView: ****************")
+                        Log.d("TasdasdasAG", "onCreateView: ****************")
                     }
                     is AllShoppingViewModel.AllShoppingState.Success -> {
-                        if(viewModel.stateCartItems.value.size == 0 ){
-                            toastutil.showMessage("You have no Shopping items please add",activity)
+
+                        if(it.loading){
+                            Log.d("start dialog", "onCreateView: ")
+                            dialog.show()
                         }else{
-                            listAdapter.itemsInserted(viewModel.stateCartItems.value)
+                            Log.d("dismiss dialog", "onCreateView: ")
+
+                            dialog.dismiss()
                         }
+
                     }
                     is AllShoppingViewModel.AllShoppingState.ReceivedData -> {
+                        Log.d("*********", "recived data ")
                         dialog.dismiss()
                         if(it.mutableList.size>0){
                             listAdapter.itemsInserted(it.mutableList)
@@ -105,6 +112,10 @@ class AllShopping : Fragment() ,AllShoppingItemListener{
     }
 
     override fun onShoppingItemSelectListener(item: HomeShoppingList) {
-        Log.d("TAG", "onShoppingItemSelectListener: $item ")
+
+        val action = AllShoppingDirections.actionAllShoppingToHomeFragment2(item.shoppinglist.toTypedArray(),null,item.id,item.name)
+
+        findNavController().navigate(action)
+
     }
 }

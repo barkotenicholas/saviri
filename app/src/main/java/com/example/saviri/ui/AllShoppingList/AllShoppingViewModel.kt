@@ -29,6 +29,7 @@ class AllShoppingViewModel(
     val stateCartItems = _stateCartItems.asStateFlow()
 
     suspend fun loadData(){
+
         viewModelScope.launch {
 
             loadingEventChannel.send(AllShoppingState.Success(true,"loading"))
@@ -38,10 +39,16 @@ class AllShoppingViewModel(
         Log.d("TAG", "loadData: loaded data $data")
         _stateCartItems = MutableStateFlow(arrayListOf())
 
-        _stateCartItems.value = (_stateCartItems.value + data) as MutableList<HomeShoppingList>
+        _stateCartItems.value.clear()
+
+        if(data.isNotEmpty()){
+            _stateCartItems.value = (data) as MutableList<HomeShoppingList>
+        }
 
         viewModelScope.launch {
             loadingEventChannel.send(AllShoppingState.ReceivedData(_stateCartItems.value))
+            loadingEventChannel.send(AllShoppingState.Success(false,"loading"))
+
         }
     }
 

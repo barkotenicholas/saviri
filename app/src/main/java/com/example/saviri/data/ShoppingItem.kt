@@ -4,4 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class ShoppingItem(var name:String, var price : Double, var quantity :Int):Parcelable
+data class ShoppingItem(var name:String, var price : Double, var quantity :Int):Parcelable{
+    constructor():this("",0.0,0)
+}
