@@ -67,6 +67,7 @@ class AllShopping : Fragment() ,AllShoppingItemListener{
 
             }
         }
+
         lifecycleScope.launch {
             viewModel.loadingEvent.collectLatest {
                 when(it){
@@ -77,17 +78,13 @@ class AllShopping : Fragment() ,AllShoppingItemListener{
                     is AllShoppingViewModel.AllShoppingState.Success -> {
 
                         if(it.loading){
-                            Log.d("start dialog", "onCreateView: ")
                             dialog.show()
                         }else{
-                            Log.d("dismiss dialog", "onCreateView: ")
-
                             dialog.dismiss()
                         }
 
                     }
                     is AllShoppingViewModel.AllShoppingState.ReceivedData -> {
-                        Log.d("*********", "recived data ")
                         dialog.dismiss()
                         if(it.mutableList.size>0){
                             listAdapter.itemsInserted(it.mutableList)
@@ -113,8 +110,8 @@ class AllShopping : Fragment() ,AllShoppingItemListener{
 
     override fun onShoppingItemSelectListener(item: HomeShoppingList) {
 
-        val action = AllShoppingDirections.actionAllShoppingToHomeFragment2(item.shoppinglist.toTypedArray(),null,item.id,item.name)
-
+        val action = AllShoppingDirections.actionAllShoppingToHomeFragment2(item.conversion,item.shoppinglist.toTypedArray(),null,item.id,item.name,-1)
+//        val ac = AllShoppingDirections.act
         findNavController().navigate(action)
 
     }

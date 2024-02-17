@@ -69,11 +69,25 @@ class HomeViewModel(
                 addToCart(event.item)
             }
             is AddCartEvent.AddAllItems -> {
-                Log.d("Items 1234567890", "addItemsToCart:  ${event.item}")
-
                 _stateCartItems.value += event.item
             }
+            is AddCartEvent.EditCartITem -> {
+                Log.d("todayt", "addItemsToCart: ${event.item}")
+                updateCartItem(event.item)
+            }
             else -> {}
+        }
+    }
+
+    private fun updateCartItem(item: ShoppingItem) {
+
+        viewModelScope.launch {
+            if(item.key.isNullOrBlank()){
+                val shoppingList_id:String = shopinglistrespo.insert(item,_conversion.value,_shoppingListName.value)
+                _shoppingListId.value = shoppingList_id
+            }else{
+                shopinglistrespo.updateToExistingList(item,_shoppingListId.value)
+            }
         }
     }
 
@@ -85,7 +99,7 @@ class HomeViewModel(
                 val shoppingList_id:String = shopinglistrespo.insert(item,_conversion.value,_shoppingListName.value)
                 _shoppingListId.value = shoppingList_id
             }else{
-                shopinglistrespo.insertToExistingList(item,_shoppingListId.value )
+                shopinglistrespo.insertToExistingList(item,_shoppingListId.value)
             }
             _addCartEventChannel.send(AddCartState.CartState(_stateCartItems.value.size))
         }
@@ -99,6 +113,7 @@ class HomeViewModel(
             is CartFormEvent.ItemPriceChanged -> {
                 _state.value = _state.value.copy(itemPrice = event.ItemPrice)
             }
+
             CartFormEvent.Submit -> {
                 validateInputs()
             }
@@ -127,6 +142,8 @@ class HomeViewModel(
         _conversion.value = _conversion.value.copy(convertTo = conversion.convertTo, convertFrom = conversion.convertFrom)
         _shoppingListId.value = shoppingid
         _shoppingListName.value = shoppingListName
+        Log.d("asd1111111asdadsdas", "getLatestCurrency: $conversion $total $shoppingid $shoppingListName ")
+        Log.d("Idonotknow", "getLatestCurrency: ${_shoppingListId.value}")
         viewModelScope.launch {
             val results = repository.getBaseCountries()
             if(results.success == true){
@@ -233,7 +250,8 @@ class HomeViewModel(
             cartValidationEventChannel.send(CartState.Success(
                 ShoppingItem(_state.value.itemName,
                     _state.value.itemPrice.toDouble(),
-                    1
+                    1,
+                    null
                 )
             ))
         }
@@ -264,7 +282,8 @@ data class CartFormState(
     val itemName : String = "",
     val itemNameError : String?=null,
     val itemPrice : String="",
-    val itemPriceError:String?=null
+    val itemPriceError:String?=null,
+    val itemkey : String?=null
 )
 
 data class CurrencyFormState(
@@ -278,6 +297,8 @@ sealed class AddCartEvent{
     data class CartChanged(val item:ShoppingItem) : AddCartEvent()
 
     data class AddAllItems(val item: Array<ShoppingItem>) :AddCartEvent()
+
+    data class EditCartITem(val item:ShoppingItem) : AddCartEvent()
 }
 
 sealed class AddCartState{
@@ -300,6 +321,8 @@ sealed class CurrencyState{
 sealed class CartFormEvent{
     data class ItemNameChanged(val itemName: String):CartFormEvent()
     data class ItemPriceChanged(val ItemPrice: String):CartFormEvent()
+
+    data class ItemKeyChanged(val ItemPrice: String):CartFormEvent()
 
     object Submit:CartFormEvent()
 }

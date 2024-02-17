@@ -57,19 +57,40 @@ class HomeFragment : Fragment() , ShoppingListener{
         shoppingItem = args.item
         val shoppingItems = args.shoplist
         shoppingId = args.shoppinglistid
-
-        viewModel.addItemsToCart(AddCartEvent.AddAllItems(shoppingItems))
+        val shopingIndex = args.shopingindex
         conversion = args.values
-
         shoppingListName = args.shopingListName
-
+        Log.d("TAGTAGTAG", "onViewCreated: $conversion ")
         if(conversion != null){
             viewModel.getLatestCurrency(conversion!!,shoppingAdapter.getTotal(),shoppingId,shoppingListName)
         }
-        if (shoppingItem != null) {
+
+        if (shopingIndex != -1 ){
+            Log.d("TAG", "asdasdasdasdsadasdasdewr: $shopingIndex  --- ${shoppingItems.get(shopingIndex)}")
+            Log.d("TAG", "sdf: $shopingIndex  --- ${shoppingItem}")
+            if(shoppingItem == shoppingItems.get(shopingIndex)){
+                Log.d("***********************************", "onViewCreated: same object no need to upgrade")
+
+            }else{
+                viewModel.addItemsToCart(AddCartEvent.EditCartITem(shoppingItem!!))
+                shoppingItems.set(shopingIndex, shoppingItem);
+
+                viewModel.addItemsToCart(AddCartEvent.AddAllItems(shoppingItems))
+
+            }
+        }
+        if(shopingIndex == -1){
+            viewModel.addItemsToCart(AddCartEvent.AddAllItems(shoppingItems))
+        }
+
+
+
+
+        if (shoppingItem != null && shopingIndex == -1) {
             viewModel.addItemsToCart(AddCartEvent.CartChanged(shoppingItem!!))
             updateTotal(shoppingAdapter.getTotal())
         }
+
 
         (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider{
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -86,6 +107,7 @@ class HomeFragment : Fragment() , ShoppingListener{
                             conversion!!,
                             shopinglist,
                             shoppingListName
+                        ,-1
                         ))
                         return true
                     }
@@ -234,6 +256,17 @@ class HomeFragment : Fragment() , ShoppingListener{
 
     override fun onItemQuantityAdd(shoppingItems: Array<ShoppingItem>) {
         updateTotal(shoppingAdapter.getTotal())
+    }
+
+    override fun onItemClickEdit(shoppingItems: Array<ShoppingItem>, index: Int) {
+        val shopinglist = viewModel.shoppinglistid.value
+        findNavController().navigate(HomeFragmentDirections.actionHomeFragment2ToAddCartFragment2(
+            shoppingItems,
+            conversion!!,
+            shopinglist,
+            shoppingListName,
+            index
+        ))
     }
 
 }

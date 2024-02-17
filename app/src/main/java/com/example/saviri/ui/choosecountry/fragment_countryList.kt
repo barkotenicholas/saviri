@@ -63,8 +63,8 @@ class fragment_countryList: Fragment() {
                     var data = Conversion(binding.autoCompleteTextView.text.toString(),binding.autoCompleteTextView1.text.toString())
                     var shopinglistname =binding.inputshopinglistname.text.toString()
                     var action = fragment_countryListDirections.actionFragmentCountryListToHomeFragment2(
-                        emptyArray(),null,"",shopinglistname
-                    ).setValues(data)
+                        data,emptyArray(),null,"",shopinglistname,-1
+                    )
                     findNavController().navigate(action)
                 }
 

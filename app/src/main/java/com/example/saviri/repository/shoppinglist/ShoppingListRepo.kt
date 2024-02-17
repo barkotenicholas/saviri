@@ -17,4 +17,6 @@ interface ShoppingListRepo {
     suspend fun createShoppingList(shoppingListName:String,conversion: Conversion)
 
     suspend fun getUserShoppingList():List<HomeShoppingList>
+
+    suspend fun updateToExistingList(item:ShoppingItem,shoppingRefernce:String)
 }

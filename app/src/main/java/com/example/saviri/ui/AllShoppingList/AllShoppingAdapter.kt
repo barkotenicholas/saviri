@@ -10,7 +10,7 @@ import com.example.saviri.databinding.AllshoppingitemBinding
 import kotlin.math.log
 
 class  AllShoppingAdapter(
-    private var items:MutableList<HomeShoppingList>,
+    private var items:MutableList<HomeShoppingList> ,
     var listener:AllShoppingItemListener
     ): RecyclerView.Adapter<AllShoppingAdapter.AllShoppingViewHolder>() {
 
@@ -32,7 +32,7 @@ class  AllShoppingAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun itemsInserted(newValues:MutableList<HomeShoppingList>){
-
+        items.clear()
         items.addAll(newValues)
         notifyDataSetChanged()
     }

@@ -48,6 +48,7 @@ class ShoppingAdapter (
         fun bind(item: ShoppingItem,position: Int){
             binding.apply {
 
+
                 itemName.text = item.name
                 itemAmount.text = item.quantity.toString()
                 localPrice.text = item.price.toString()
@@ -79,6 +80,12 @@ class ShoppingAdapter (
                         shoppingListener.onItemAdd(items.toTypedArray())
 
                     }
+                }
+            }
+
+            binding.root.apply {
+                setOnClickListener {
+                    shoppingListener.onItemClickEdit(items.toTypedArray(),position)
                 }
             }
         }

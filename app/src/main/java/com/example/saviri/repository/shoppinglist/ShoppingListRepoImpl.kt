@@ -9,6 +9,7 @@ import com.example.saviri.util.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import kotlin.math.log
 
 class ShoppingListRepoImpl(
     private val firebaseAuth: FirebaseAuth,
@@ -46,9 +47,16 @@ class ShoppingListRepoImpl(
         val itemref = firebaseDatabase.child(shoppingRefernce).push().key
 
         Log.d("|ASasASasASas", "insertToExistingList: $shoppingRefernce")
+        var new = ShoppingItem(item.name,item.price,item.quantity)
         firebaseDatabase.child(shoppingRefernce).child("items").child(itemref.toString())
-            .setValue(item)
+            .setValue(new)
     }
+    override suspend fun updateToExistingList(item: ShoppingItem, shoppingRefernce: String) {
+        var update = ShoppingItem(item.name,item.price,item.quantity)
+        firebaseDatabase.child(shoppingRefernce).child("items").child(item.key.toString())
+            .setValue(update)
+    }
+
 
     override suspend fun createShoppingList(shoppingListName: String, conversion: Conversion) {
 
@@ -65,8 +73,7 @@ class ShoppingListRepoImpl(
         Log.d("TAG", "getUserShoppingList: $data")
         var shopingList: List<HomeShoppingList> = emptyList()
         for (d in data.children) {
-            Log.d("aaasdq", "getUserShoppingList: ${d}")
-            Log.d("TAG", "getUserShoppingList: ${d.key}")
+
             var data1 = firebaseDatabase.child(d.key.toString()).get().await()
             var data2 = this.getShoppingData(d.key.toString(), data1)
             var data3 = this.getShoppingConvertion(d.key.toString(), data1)
@@ -76,12 +83,12 @@ class ShoppingListRepoImpl(
                 data1.key.toString(), data2.name, conversion = data3,
                 shoppinglist = ig
             )
-            Log.d("TAG", "getUserShoppingList---------------: ${data1}")
         }
 
         return shopingList
 
     }
+
 
     private suspend fun getShoppingData(data11: String, data1: DataSnapshot): ShoppingListName {
 
@@ -130,21 +137,24 @@ class ShoppingListRepoImpl(
                 val data = firebaseDatabase.child(data11).child(snap.key.toString()).get().await()
 
                 if (data != null) {
-                    Log.d("TAGAASA", "getShoppinasdasdadsdasdgConvertion: ${data.getValue()}")
+                    Log.d("TAGwerAASA", "getShoppinasdasdadsdasdgConvertion: ${data}")
 //                    return data.getValue(Conversion::class.java)!!
                     var dat = data.children
                     dat.forEach {
                         Log.d(
                             "TAG*--*-*-*-*--*",
-                            "getShoppingList: ${it.getValue(ShoppingItem::class.java)} "
+                            "getShoppingList----------------------------------:  ${it.key} "
                         )
-                        shopingList.add(it.getValue(ShoppingItem::class.java)!!)
+
+                        var shopingItem = it.getValue(ShoppingItem::class.java)!!
+                        shopingList.add(shopingItem.copy(key = it.key))
                     }
                 }
 
             }
 
         }
+        Log.d("TAGpp", "getShoppingList: all shopping is ${shopingList}")
         return shopingList
 
     }
